@@ -175,6 +175,17 @@ canvas#cv{position:absolute;inset:0;width:100%;height:100%;touch-action:none}
 .ending p{line-height:1.55;margin:0}
 
 [hidden]{display:none!important}
+.tut{align-items:stretch;text-align:left}
+.tutart{height:150px;display:grid;place-items:center;border-radius:18px;background:radial-gradient(80% 90% at 50% 70%,rgba(233,185,73,.22),rgba(255,255,255,.03));flex:none}
+.tutart img{max-height:136px;width:auto;filter:drop-shadow(0 8px 10px rgba(0,0,0,.45))}
+.tutart span{font-size:72px;line-height:1}
+.dots{display:flex;gap:6px;justify-content:center}.dots i{width:7px;height:7px;border-radius:50%;background:var(--glass2)}.dots i.on{background:var(--gold);width:20px;border-radius:4px}
+.tutbtns{display:flex;gap:10px}.tutbtns>*{flex:1}
+.era97 .tutart{background:rgba(40,51,29,.12);border-radius:0}.era97 .dots i{background:var(--lcd-mid);border-radius:0}.era97 .dots i.on{background:var(--lcd-dark)}
+.installwrap{z-index:9}
+.inst ol{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:6px;line-height:1.45}
+.instic img{width:76px;height:76px;border-radius:18px;box-shadow:0 6px 16px rgba(0,0,0,.4)}
+@media (orientation:landscape) and (max-height:560px){.tutart{height:96px}.tutart img{max-height:88px}.tutart span{font-size:48px}.instic img{width:52px;height:52px}}
 @media (orientation:landscape) and (max-height:560px){
   #app{max-width:none;padding-block:4px}
   .frame{border-radius:14px}
@@ -497,6 +508,8 @@ function newGame(era,name){
   S={era,name:(name||'').trim()||(era==='97'?"Dario":"Kevin"),week:0,min:7*60,figo:20,risp:20,scuola:55,fam:60,soldi:20,foll:era==='26'?37:0,mezzo:0,items:[],tipa:null,used:[],flags:{},day:newDay(),inbox:[],log:[],riding:false};
   let w=0;while(!isOverWeek(w))w++;S.total=w;
   setupWorld();placeAtHome();
+  let seenTut=false;try{seenTut=localStorage.getItem(TUT_KEY)}catch(e){}
+  if(!seenTut){save();showGame();startTutorial();return}
   sheet={kind:'result',title:"Si parte",text:era==='97'?"Settembre 1997. Niente motorino serio, niente reputazione. Hai un anno scolastico per diventare il re della piazza. Alle 9 si entra a scuola.":"Settembre 2026. 37 follower e tanta fame. Hai un anno scolastico per diventare il re della piazza. Alle 9 si entra a scuola.",fx:[],next:'close'};
   save();showGame();
 }
@@ -749,6 +762,7 @@ function renderLayer(){
 }
 function sheetHtml(){
   const E=ERA[S.era];
+  if(sheet.kind==='tut')return tutHtml();
   if(sheet.kind==='result'){return`<div class="sheet-wrap"><div class="sheet" role="dialog" aria-label="${esc(sheet.title)}"><h3>${esc(sheet.title)}</h3>${sheet.sub?`<p class="sub">${esc(sheet.sub)}</p>`:''}${sheet.text?`<p>${esc(sheet.text)}</p>`:''}${fxHtml(sheet.fx)}<button class="btn-main" data-do="cont">Ok</button></div></div>`}
   if(sheet.kind==='event'){const ev=EV[sheet.id],who=evWho(ev);
     return`<div class="sheet-wrap"><div class="sheet" role="dialog" aria-label="${esc(who)}"><div class="who"><div class="av">${esc(who[0])}</div><div><b>${esc(who)}</b><small>${hhmm(S.min)}</small></div></div>
@@ -782,7 +796,7 @@ function phoneHtml(){
   }
   if(phoneTab==='mappa')body=`<canvas class="minimap" id="mini" width="384" height="212"></canvas><p class="legend">Il puntino lampeggiante sei tu.</p>`;
   if(phoneTab==='tiktok')body=`<div class="pcard"><b>${S.foll.toLocaleString('it-IT')} follower</b><p class="legend">Girare e postare un video richiede un'ora. Più figosità e rispetto hai, più funziona.</p><button class="btn-main" data-do="post">Gira e posta un video</button></div>`;
-  if(phoneTab==='menu')body=`<div class="pcard"><p class="legend">La partita si salva da sola.</p><button class="btn-ghost" data-do="title">Salva e torna al titolo</button><button class="btn-ghost" data-do="reset">Ricomincia da capo</button></div>`;
+  if(phoneTab==='menu')body=`<div class="pcard"><p class="legend">La partita si salva da sola.</p><button class="btn-ghost" data-do="tut">Come si gioca</button>${canInstall?'<button class="btn-ghost" data-do="install">Installa sul telefono</button>':''}<button class="btn-ghost" data-do="title">Salva e torna al titolo</button><button class="btn-ghost" data-do="reset">Ricomincia da capo</button></div>`;
   const tb=tabs.map(([k,ic,lab])=>is97?`<button class="key" data-tab="${k}" aria-selected="${phoneTab===k}">${lab.toUpperCase()}${k==='msg'&&nb?`<span class="badge">${nb}</span>`:''}</button>`
     :`<button class="tab" data-tab="${k}" aria-selected="${phoneTab===k}"><span>${ic}</span>${lab}${k==='msg'&&nb?`<span class="badge">${nb}</span>`:''}</button>`).join('');
   if(is97)return`<div class="phov" data-bg="1"><div class="ph97"><div class="brand">NOKIA-ISH</div><div class="lcd">${body}</div><div class="keys">${tb}</div><button class="closek" data-do="phone">CHIUDI</button></div></div>`;
@@ -810,6 +824,10 @@ function act(k){
   if(k==='hit'){hitTune();return}
   if(k==='phone'){phoneOpen=false;renderLayer();return}
   if(k==='post'){phoneOpen=false;tiktok();return}
+  if(k==='tutnext'){if(sheet.i<tutPages().length-1){sheet.i++;renderLayer()}else{try{localStorage.setItem(TUT_KEY,'1')}catch(e){}sheet=null;renderLayer()}return}
+  if(k==='tutskip'){try{localStorage.setItem(TUT_KEY,'1')}catch(e){}sheet=null;renderLayer();return}
+  if(k==='tut'){phoneOpen=false;startTutorial();return}
+  if(k==='install'){phoneOpen=false;renderLayer();installHelp(false);return}
   if(k==='title'){save();toTitle();return}
   if(k==='reset'){wipe();toTitle();return}
   if(k==='restart'){wipe();toTitle();return}
@@ -823,6 +841,61 @@ function tiktok(){
 }
 function toTitle(){S=null;sheet=null;phoneOpen=false;layer.innerHTML='';$('hud').hidden=true;$('controls').hidden=true;$('prompt').hidden=true;renderStart()}
 
+
+/* ================= TUTORIAL ================= */
+const TUT_KEY='maranzetor-tut';
+function tutPages(){
+  const is97=S.era==='97',P0=CHARS[S.era].p[0],C=CHARS[S.era];
+  const touch=matchMedia('(pointer:coarse)').matches;
+  return[
+    {img:P0+'_0',t:`Ciao ${S.name}!`,p:`Hai un anno scolastico, da settembre a giugno, per diventare il re della piazza. Ogni giornata è una settimana dell'anno: quello che fai oggi cambia come finisce la storia.`},
+    {img:P0+'_1',t:"Muoviti nel quartiere",p:touch?"Trascina il joystick in basso a sinistra per camminare. Il quartiere ha scuola, bar, negozio, officina, disco, piazza, parco e campetto.":"Usa le frecce o WASD per camminare. Il quartiere ha scuola, bar, negozio, officina, disco, piazza, parco e campetto."},
+    {img:C.compa+'_0',t:"Parla ed entra con A",p:touch?"Avvicinati a una persona o a una porta e premi il tasto giallo A. Il punto esclamativo giallo sopra la testa vuol dire che qualcuno ha qualcosa da dirti.":"Avvicinati a una persona o a una porta e premi E (o spazio). Il punto esclamativo giallo sopra la testa vuol dire che qualcuno ha qualcosa da dirti."},
+    {ic:"🕘",t:"L'orologio corre",p:"Alle 9 si entra a scuola: se non ci vai hai bigiato. Dalle 14 alle 21 puoi lavorare, dalle 21 apre la disco. Torna a casa e vai a dormire prima di mezzanotte, o la famiglia si arrabbia."},
+    {ic:"📊",t:"Le tue statistiche",p:"Figosità e Rispetto ti fanno diventare qualcuno. Scuola sotto il 4 a giugno vuol dire bocciato. Se la Famiglia scende a zero ti spediscono dai nonni in campagna. I soldi arrivano con la paghetta e col lavoro."},
+    {ic:is97?"📟":"📱",t:"Il telefono",p:is97?"Il tasto del telefono apre il Nokia: statistiche, SMS a cui rispondere e mappa del quartiere. Quando arriva un messaggio compare il pallino rosso.":"Il tasto del telefono apre lo smartphone: statistiche, chat a cui rispondere, mappa e TikTok per fare follower. Quando arriva un messaggio compare il pallino rosso."},
+    {img:`veh${S.era}_0_0`,t:"Il mezzo",p:is97?"Hai la bici della nonna: col tasto del motorino ci sali e vai più veloce. In officina lo trucchi fino al Booster, ma attento ai vigili.":"All'inizio vai a piedi. In officina compri e sblocchi il monopattino, poi col suo tasto ci sali. Attento all'agente: i mezzi truccati costano multe."},
+    {img:P0+'_0',t:"Tocca a te",p:"Vestiti meglio nel negozio, fatti rispettare in piazza, trova la tipa e non farti bocciare. A giugno scopri quale finale ti sei guadagnato. Il tutorial lo ritrovi nel menu del telefono."}
+  ];
+}
+function startTutorial(){sheet={kind:'tut',i:0};renderLayer()}
+function tutHtml(){
+  const pages=tutPages(),pg=pages[sheet.i],last=sheet.i===pages.length-1;
+  return`<div class="sheet-wrap"><div class="sheet tut" role="dialog" aria-label="Come si gioca">
+    <div class="tutart">${pg.img?`<img src="a/${pg.img}.webp" alt="">`:`<span>${pg.ic}</span>`}</div>
+    <h3>${esc(pg.t)}</h3><p>${esc(pg.p)}</p>
+    <div class="dots">${pages.map((_,k)=>`<i class="${k===sheet.i?'on':''}"></i>`).join('')}</div>
+    <div class="tutbtns">${last?'':`<button class="btn-ghost" data-do="tutskip">Salta</button>`}<button class="btn-main" data-do="tutnext">${last?'Si parte!':'Avanti'}</button></div>
+  </div></div>`;
+}
+
+/* ================= INSTALL ================= */
+let installEvt=null;
+addEventListener('beforeinstallprompt',e=>{e.preventDefault();installEvt=e});
+addEventListener('appinstalled',()=>{installEvt=null;closeInstall();const b=$('instbtn');if(b)b.hidden=true});
+const standaloneApp=matchMedia('(display-mode: standalone), (display-mode: fullscreen)').matches||navigator.standalone;
+const isIOS=/iP(hone|ad|od)/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
+const isAndroid=/Android/i.test(navigator.userAgent);
+const canInstall=!standaloneApp&&/github\.io$/.test(location.hostname);
+const GAME_URL='https://ilgabbah-ux.github.io/maranzetor/';
+function closeInstall(){$('installhelp')?.remove()}
+function installHelp(first){
+  closeInstall();
+  const steps=isIOS?['Apri questa pagina con <b>Safari</b>.','Tocca <b>Condividi</b> (il quadrato con la freccia in su).','Scegli <b>Aggiungi alla schermata Home</b>, poi <b>Aggiungi</b>.']
+    :isAndroid?['Apri questa pagina con <b>Chrome</b>.','Tocca il menu <b>⋮</b> in alto a destra.','Scegli <b>Installa app</b> (o <b>Aggiungi a schermata Home</b>) e conferma.','Se resta ferma su <b>«Installazione in corso…»</b>, chiudi e scegli <b>Crea scorciatoia</b>: funziona uguale.']
+    :['Usa <b>Chrome</b> o <b>Edge</b>.','Clicca l\'icona <b>Installa</b> a destra nella barra degli indirizzi, oppure menu <b>⋮</b> → <b>Trasmetti, salva e condividi</b> → <b>Installa pagina come app</b>.','Conferma con <b>Installa</b>.'];
+  const el=document.createElement('div');el.id='installhelp';el.className='sheet-wrap installwrap';
+  el.innerHTML=`<div class="sheet inst" role="dialog" aria-label="Installa Maranzetor"><div class="instic"><img src="icon-192.png" alt="" onerror="this.remove()"></div>
+    <h3>Scarica Maranzetor sul telefono</h3><p class="sub">Lo trovi tra le app, si apre a schermo intero e funziona anche senza internet.</p>
+    ${installEvt?'':`<ol>${steps.map(x=>'<li>'+x+'</li>').join('')}</ol>`}
+    <div class="tutbtns"><button class="btn-ghost" id="instlater">${first?'Gioca e basta':'Chiudi'}</button>${installEvt?'<button class="btn-main" id="instgo">Installa</button>':''}</div></div>`;
+  frame.appendChild(el);
+  el.onclick=e=>{if(e.target===el)closeInstall()};
+  $('instlater').onclick=closeInstall;
+  const g=$('instgo');if(g)g.onclick=async()=>{try{installEvt.prompt();const r=await installEvt.userChoice;installEvt=null;if(r&&r.outcome==='accepted'){closeInstall();const b=$('instbtn');if(b)b.hidden=true;return}}catch(e){installEvt=null}installHelp(false)};
+}
+function maybeInstallPopup(){if(!canInstall)return;let seen=false;try{seen=sessionStorage.getItem('mz-inst')}catch(e){}if(seen)return;try{sessionStorage.setItem('mz-inst','1')}catch(e){}setTimeout(()=>{if(!S)installHelp(true)},900)}
+
 /* ================= START ================= */
 function renderStart(){
   const saved=load();let era=saved?.era||'26';
@@ -835,9 +908,11 @@ function renderStart(){
     <div class="field"><label for="nome">Il tuo nome</label><input id="nome" maxlength="14" placeholder="Kevin" autocomplete="off"></div>
     <button class="btn-main" id="go">Inizia l'anno</button>
     ${saved&&!saved.ending?`<button class="btn-ghost" id="cont">Continua: ${esc(saved.name)}, ${saved.era==='97'?'1997':'2026'}, settimana ${saved.week+1}</button>`:''}
+    ${canInstall?'<button class="btn-ghost" id="instbtn">📲 Installa sul telefono</button>':''}
     <p class="help">Telefono: joystick a sinistra, A per parlare ed entrare. Computer: frecce o WASD, E per agire, Q per il telefono, R per il mezzo.</p>
     <p class="credits">Omaggio a Tabboz Simulator di Andrea Bonomi (1997). Un gioco di Gabbah Productions.</p>`;
   frame.appendChild(d);
+  const ib=d.querySelector('#instbtn');if(ib)ib.onclick=async()=>{if(installEvt){try{installEvt.prompt();const r=await installEvt.userChoice;installEvt=null;if(r&&r.outcome==='accepted'){ib.hidden=true;return}}catch(e){installEvt=null}}installHelp(false)};maybeInstallPopup();
   const cards=[...d.querySelectorAll('.era-card')],nome=d.querySelector('#nome');
   const setEra=e=>{era=e;cards.forEach(c=>c.setAttribute('aria-pressed',c.dataset.era===e));nome.placeholder=e==='97'?"Dario":"Kevin"};setEra(era);
   cards.forEach(c=>c.onclick=()=>setEra(c.dataset.era));
