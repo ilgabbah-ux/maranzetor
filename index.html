@@ -532,7 +532,7 @@ function placeAtHome(){const b=BLD[0];player.u=b.door[0];player.v=b.door[1]+.3;p
 /* ================= STATE ================= */
 let S=null,sheet=null,phoneOpen=false,phoneTab='stato';
 const keys={};let joy={x:0,y:0};
-const player={u:0,v:0,dir:0,ph:0,moving:false,sr:false};
+const player={u:0,v:0,dir:0,ph:0,moving:false,sr:false,fr:true,vu:0,vv:0,spd:0,acc:0,tilt:0};
 let target=null,phoneTimer=40,saveTimer=0;
 
 function dateOf(w){const[y,m,d]=ERA[S.era].start;const dt=new Date(y,m,d);dt.setDate(dt.getDate()+7*w);return dt}
@@ -1396,7 +1396,7 @@ function roomUpdate(dt){
   const mag=Math.hypot(ix,iy);if(mag>1){ix/=mag;iy/=mag}ROOM.mv=mag>.15;
   if(ROOM.mv){const k=.13*dt,dx=ix*k,dy=iy*k,da=(dx/.4+dy/.195)/2,db=(dy/.195-dx/.4)/2;
     ROOM.a=Math.max(.04,Math.min(.98,ROOM.a+da));ROOM.b=Math.max(.04,Math.min(.98,ROOM.b+db));
-    ROOM.dir=Math.abs(da)>Math.abs(db)?(da>0?1:2):(db>0?0:3);const pf=Math.floor(ROOM.ph);ROOM.ph+=dt*9;if(Math.floor(ROOM.ph)!==pf&&pf%2===0)AUD.sfx('step')}
+    const sxx=da-db,syy=da+db;if(Math.abs(sxx)>1e-4)ROOM.sr=sxx>0;if(Math.abs(syy)>1e-4)ROOM.fr=syy>0;ROOM.dir=ROOM.fr?(ROOM.sr?1:0):(ROOM.sr?3:2);const pf=Math.floor(ROOM.ph);ROOM.ph+=dt*5.3;if(Math.floor(ROOM.ph)!==pf&&pf%2===0)AUD.sfx('step')}
   let best=.15,near=-1;(ROOM.m?ROOM.m.o:[]).forEach((op,i)=>{const[a,b]=RSPOT[i%6],d=Math.hypot(a-ROOM.a,b-ROOM.b);if(d<best){best=d;near=i}});
   if(Math.hypot(REXIT[0]-ROOM.a,REXIT[1]-ROOM.b)<Math.min(best,.13))near=-2;
   if(near!==ROOM.near){ROOM.near=near;layer.querySelectorAll('.hs').forEach(b=>b.classList.toggle('near',near===-2?b.classList.contains('exit'):b.dataset.hs===String(near)));
@@ -1404,7 +1404,7 @@ function roomUpdate(dt){
   roomDraw()}
 function roomDraw(){const rp=$('rp');if(!rp)return;const[x,y]=rpt(ROOM.a,ROOM.b),row=(ROOM.dir===0||ROOM.dir===1)?0:1,flip=ROOM.dir===1||ROOM.dir===3,k=ROOM.mv?1+(Math.floor(ROOM.ph)%4):0;
   const src=`a/${playerSprite()}_w${row}${k}.webp`;if(rp.dataset.s!==src){rp.dataset.s=src;rp.src=src}
-  rp.style.left=(x*100)+'%';rp.style.top=(y*100)+'%';rp.style.transform=`translate(-50%,-94%) scaleX(${flip?-1:1})`}
+  const ax=rp.complete&&rp.naturalWidth?ancX(rp)/rp.naturalWidth*100:50;rp.style.left=(x*100)+'%';rp.style.top=(y*100)+'%';rp.style.transformOrigin=`${ax}% 94%`;rp.style.transform=`translate(-${ax}%,-94%) scaleX(${flip?-1:1})`}
 
 /* ================= CANVAS / LOOP ================= */
 const cv=$('cv'),ctx=cv.getContext('2d');let Z=1,DPR=1;
@@ -1425,15 +1425,23 @@ function update(dt){
   let ix=(keys['arrowright']||keys['d']?1:0)-(keys['arrowleft']||keys['a']?1:0)+joy.x;
   let iy=(keys['arrowdown']||keys['s']?1:0)-(keys['arrowup']||keys['w']?1:0)+joy.y;
   const mag=Math.hypot(ix,iy);if(mag>1){ix/=mag;iy/=mag}
-  const sp=S.riding?(S.era==='97'&&S.mezzo===0?210:240+S.mezzo*45):150;
-  player.moving=mag>.15;
-  if(player.moving){
-    const dx=ix*sp*dt,dy=iy*sp*dt,du=(dx/HW+dy/HH)/2,dv=(dy/HH-dx/HW)/2;
-    moveEntity(player,du,dv);
-    player.dir=Math.abs(du)>Math.abs(dv)?(du>0?1:2):(dv>0?0:3);
-    player.sr=ix>0.05?true:ix<-0.05?false:player.sr;
-    const pf=Math.floor(player.ph);player.ph+=dt*(S.riding?7:9);if(!S.riding&&Math.floor(player.ph)!==pf&&pf%2===0)AUD.sfx('step');
+  const ride=S.riding,vmax=ride?(S.era==='97'&&S.mezzo===0?2.4:2.8+S.mezzo*.45):1.7;
+  let wu=0,wv=0;if(mag>.15){wu=(ix/HW+iy/HH)/2;wv=(iy/HH-ix/HW)/2;const l=Math.hypot(wu,wv)||1;wu/=l;wv/=l}
+  const thr=Math.min(1,mag),tu=wu*vmax*thr,tv=wv*vmax*thr,acc=ride?(mag>.15?1.9:2.6):16,f=Math.min(1,dt*acc);
+  player.vu+=(tu-player.vu)*f;player.vv+=(tv-player.vv)*f;
+  let spd=Math.hypot(player.vu,player.vv);
+  if(spd<.03&&mag<=.15){player.vu=player.vv=0;spd=0}
+  player.moving=spd>.15;
+  if(spd>0){
+    const ou=player.u,ov=player.v;moveEntity(player,player.vu*dt,player.vv*dt);
+    if(Math.hypot(player.u-ou,player.v-ov)<spd*dt*.3){player.vu*=.6;player.vv*=.6}
+    const scx=(player.vu-player.vv)*HW,scy=(player.vu+player.vv)*HH;
+    if(Math.abs(scx)>10)player.sr=scx>0;if(Math.abs(scy)>8)player.fr=scy>0;
+    player.dir=player.fr?(player.sr?1:0):(player.sr?3:2);
+    const pf=Math.floor(player.ph);player.ph+=spd*dt*(ride?1:3.1);const nf=Math.floor(player.ph);
+    if(!ride&&player.moving&&nf!==pf&&nf%2===1)AUD.sfx('step');
   }
+  player.acc+=((spd-player.spd)/Math.max(dt,.001)-player.acc)*Math.min(1,dt*8);player.spd=spd;
   const prev=S.min;S.min+=dt*1000/MS_PER_MIN;checkClock(prev,S.min);
   if(sheet)return;
   const h=S.min/60;
@@ -1449,10 +1457,10 @@ function update(dt){
     if(d<.08){n.wait=1+Math.random()*3;[n.tu,n.tv]=randInZone(n.zones[n.zk][2]);return}
     const s=(n.sp||.8)*dt,ou=n.u,ov=n.v;moveEntity(n,du/d*s,dv/d*s,.18);
     if(Math.abs(n.u-ou)+Math.abs(n.v-ov)<s*.3){[n.tu,n.tv]=randInZone(n.zones[n.zk][2]);return}
-    n.moving=true;n.ph+=dt*7;n.dir=Math.abs(du)>Math.abs(dv)?(du>0?1:2):(dv>0?0:3);
+    n.moving=true;n.ph+=s*3.1;n.dir=(du+dv)>0?((du-dv)>0?1:0):((du-dv)>0?3:2);
     if(n.role==='vigile'&&S.riding&&S.mezzo>=2&&!S.day.vig&&d0<2.4){S.day.vig=true;n.dir=dirTo(n,player);n.say={t:S.era==='97'?'Ehi tu, col motorino! Fermati!':'Ehi, quel monopattino! Fermati!',until:performance.now()+3000};AUD.voice('vig'+S.era+'b')}
   });
-  updateLife(dt);AUD.setEngine(S.riding,player.moving?1:0);
+  updateLife(dt);AUD.setEngine(S.riding,Math.min(1,spd/vmax));
   target=null;let best=1.15;
   NPCS.forEach(n=>{if(!n.vis)return;const d=Math.hypot(n.u-player.u,n.v-player.v);if(d<best){best=d;target={npc:n}}});
   POIS.forEach(p=>{const d=Math.hypot(p.u-player.u,p.v-player.v);const r=p.type==='campo'?3.2:p.type==='door'?1.1:1.1;const eff=p.type==='campo'?d-2.4:d;if(d<r&&eff<best){best=eff;target={poi:p}}});
@@ -1477,18 +1485,27 @@ function drawChar(c,sprName,u,v,dir,ph,moving,o={}){
   c.save();c.translate(sx,sy-(o.lift||0));if(flip)c.scale(-1,1);
   if(o.clip){c.beginPath();c.rect(-w,-hh-20,w*2,hh*o.clip+20);c.clip()}
   if(!moving)c.scale(1,1+.006*Math.sin(t*2.2+v));
-  c.drawImage(src,-w/2,-hh,w,hh);c.restore();if(o.sil)c.restore();
+  const ax=ancX(img)*s;c.drawImage(src,-ax,-hh,w,hh);c.restore();if(o.sil)c.restore();
 }
+const ANC=new WeakMap();
+function ancX(img){let a=ANC.get(img);if(a!==undefined)return a;a=img.width/2;
+  try{const w=img.width,h=Math.max(1,Math.round(img.height*.38)),cc=document.createElement('canvas');cc.width=w;cc.height=h;const x=cc.getContext('2d');x.drawImage(img,0,0);
+    const d=x.getImageData(0,0,w,h).data;let sx=0,n=0;for(let y=0;y<h;y+=2)for(let i=0;i<w;i+=2){if(d[(y*w+i)*4+3]>128){sx+=i;n++}}if(n)a=sx/n}catch(e){}
+  ANC.set(img,a);return a}
 const silC=document.createElement('canvas'),silX=silC.getContext('2d');
 function drawPlayer(c){
   const t=performance.now()/1000;
   if(S.riding){
-    const[sx,sy]=iso(player.u,player.v),kind=rideKind(),vi=vehImg(!!player.sr);
+    const[sx,sy]=iso(player.u,player.v),kind=rideKind(),vi=vehImg(!!player.sr),sp=player.spd,motor=kind!=='kick'&&kind!=='bike';
     c.fillStyle="rgba(0,0,0,.3)";c.beginPath();c.ellipse(sx,sy+2,60,18,0,0,7);c.fill();
-    const vib=player.moving?Math.sin(t*40)*.8:0;
-    if(vi){const vh=kind==='kick'?132:kind==='bike'?126:136,s=vh/vi.height;c.drawImage(vi,sx-vi.width*s/2,sy-vh+6+vib,vi.width*s,vh)}
-    if(kind==='kick')drawChar(c,playerSprite(),player.u,player.v,player.dir,player.ph*.3,false,{lift:28});
-    else drawChar(c,playerSprite(),player.u,player.v,player.dir,0,false,{lift:kind==='bike'?58:62,clip:.66});
+    const tg=Math.max(-1,Math.min(1,player.acc/2.5))*.045;player.tilt+=(tg-player.tilt)*.12;
+    const bump=sp>.2?Math.abs(Math.sin(player.ph*5.5))*1.6:0,vib=motor?Math.sin(t*55)*(.3+sp*.15):0,rdir=player.sr?1:0;
+    c.save();c.translate(sx,sy);c.rotate((player.sr?-1:1)*player.tilt);c.translate(-sx,-sy-bump-vib);
+    if(vi){const vh=kind==='kick'?132:kind==='bike'?126:136,s=vh/vi.height;c.drawImage(vi,sx-vi.width*s/2,sy-vh+6,vi.width*s,vh)}
+    if(kind==='kick'){const push=player.acc>.35&&sp<2.2,pk=push?1+Math.floor(t*5)%4:0;drawChar(c,playerSprite(),player.u,player.v,rdir,pk,push,{lift:28})}
+    else if(kind==='bike'){const pk=sp>.2?1+Math.floor(player.ph*2.2)%4:0;drawChar(c,playerSprite(),player.u,player.v,rdir,pk,sp>.2,{lift:58,clip:.66})}
+    else drawChar(c,playerSprite(),player.u,player.v,rdir,0,false,{lift:62,clip:.66});
+    c.restore();
     if(player.moving&&kind==='moped'){c.fillStyle="rgba(200,200,210,.35)";for(let i=0;i<3;i++){const k=((t*2+i/3)%1);c.beginPath();c.arc(sx+(player.sr?-1:1)*(40+k*30),sy-14-k*20,6+k*10,0,7);c.fill()}}
   }else drawChar(c,playerSprite(),player.u,player.v,player.dir,player.ph,player.moving);
 }
@@ -1528,7 +1545,7 @@ function draw(){
   const pend=BLD.slice().sort((a,b)=>(a.x+a.w+a.y+a.h)-(b.x+b.w+b.y+b.h));
   list.forEach(o=>{for(let i=0;i<pend.length;i++){if(inFront(o,pend[i])){drawBuilding(ctx,pend[i]);pend.splice(i,1);i--}}o.d()});
   pend.forEach(b=>drawBuilding(ctx,b));
-  if(BLD.some(b=>b.hide)){const lift=S.riding?(rideKind()==='kick'?28:58):0;drawChar(ctx,playerSprite(),player.u,player.v,player.dir,player.ph,player.moving&&!S.riding,{sil:1,lift})}
+  if(BLD.some(b=>b.hide)){const lift=S.riding?(rideKind()==='kick'?28:58):0;drawChar(ctx,playerSprite(),player.u,player.v,S.riding?(player.sr?1:0):player.dir,player.ph,player.moving&&!S.riding,{sil:1,lift})}
   // door markers
   if(target&&target.poi&&target.poi.type==='door'){const[sx,sy]=iso(target.poi.u,target.poi.v);const bob=Math.sin(t*5)*5;ctx.fillStyle="#e9b949";ctx.strokeStyle="#1b1408";ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(sx-12,sy-70+bob);ctx.lineTo(sx+12,sy-70+bob);ctx.lineTo(sx,sy-54+bob);ctx.closePath();ctx.fill();ctx.stroke()}
   // fountain sparkle
