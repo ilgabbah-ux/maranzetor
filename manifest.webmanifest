@@ -1,0 +1,30 @@
+{
+ "name": "Maranzetor",
+ "short_name": "Maranzetor",
+ "description": "Un anno da maranza nel quartiere, nel 1997 o nel 2026.",
+ "start_url": "./",
+ "scope": "./",
+ "display": "fullscreen",
+ "orientation": "any",
+ "background_color": "#16131a",
+ "theme_color": "#16131a",
+ "lang": "it",
+ "icons": [
+  {
+   "src": "icon-192.png",
+   "sizes": "192x192",
+   "type": "image/png"
+  },
+  {
+   "src": "icon-512.png",
+   "sizes": "512x512",
+   "type": "image/png"
+  },
+  {
+   "src": "icon-512.png",
+   "sizes": "512x512",
+   "type": "image/png",
+   "purpose": "maskable"
+  }
+ ]
+}
