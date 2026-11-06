@@ -280,7 +280,8 @@ const c01=v=>Math.max(0,Math.min(1,v));
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 function mulberry(a){return()=>{a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
 const SAVE='maranzetor-v3';
-const TS=16, MW=48, MH=36, MS_PER_MIN=130;
+const TS=16, MW=48, MH=36;
+const TSP=[['Lenta',650],['Normale',420],['Veloce',220]];let tspd=1;try{const v=+localStorage.getItem('mz-tempo');if(v>=0&&v<3&&localStorage.getItem('mz-tempo')!==null)tspd=v}catch(e){}
 const LABEL={figo:"Figosità",risp:"Rispetto",scuola:"Scuola",fam:"Famiglia",soldi:"Soldi",foll:"Follower",mezzo:"Mezzo"};
 const MESI=["Gen","Feb","Mar","Apr","Mag","Giu","Lug","Ago","Set","Ott","Nov","Dic"];
 
@@ -861,7 +862,7 @@ function phoneHtml(){
   if(phoneTab==='trofei')body=trophyHtml();
   if(phoneTab==='missioni')body=missionHtml();
   if(phoneTab==='amici')body=relHtml();
-  if(phoneTab==='menu')body=`<div class="pcard"><p class="legend">La partita si salva da sola.</p><button class="btn-ghost" data-do="mus">Musica: ${AUD.mOn?'accesa':'spenta'}</button><button class="btn-ghost" data-do="sfx">Effetti: ${AUD.sOn?'accesi':'spenti'}</button><button class="btn-ghost" data-do="tut">Come si gioca</button>${canInstall?'<button class="btn-ghost" data-do="install">Installa sul telefono</button>':''}<button class="btn-ghost" data-do="title">Salva e torna al titolo</button><button class="btn-ghost" data-do="reset">Ricomincia da capo</button></div>`;
+  if(phoneTab==='menu')body=`<div class="pcard"><p class="legend">La partita si salva da sola.</p><button class="btn-ghost" data-do="mus">Musica: ${AUD.mOn?'accesa':'spenta'}</button><button class="btn-ghost" data-do="sfx">Effetti: ${AUD.sOn?'accesi':'spenti'}</button><button class="btn-ghost" data-do="tempo">Scorrere del tempo: ${TSP[tspd][0]}</button><button class="btn-ghost" data-do="tut">Come si gioca</button>${canInstall?'<button class="btn-ghost" data-do="install">Installa sul telefono</button>':''}<button class="btn-ghost" data-do="title">Salva e torna al titolo</button><button class="btn-ghost" data-do="reset">Ricomincia da capo</button></div>`;
   const tb=tabs.map(([k,ic,lab])=>is97?`<button class="key" data-tab="${k}" aria-selected="${phoneTab===k}">${lab.toUpperCase()}${k==='msg'&&nb?`<span class="badge">${nb}</span>`:''}</button>`
     :`<button class="tab" data-tab="${k}" aria-selected="${phoneTab===k}"><span>${ic}</span>${lab}${k==='msg'&&nb?`<span class="badge">${nb}</span>`:''}</button>`).join('');
   if(is97)return`<div class="phov" data-bg="1"><div class="ph97"><div class="brand">NOKIA-ISH</div><div class="lcd">${body}</div><div class="keys">${tb}</div><button class="closek" data-do="phone">CHIUDI</button></div></div>`;
@@ -888,6 +889,7 @@ function act(k){
     if(n&&n.ev){openEventAfter(n.ev,n.place)}else if(n&&n.place){goRoom(n.place,false)}else{sheet=null;renderLayer();if(S.min>=24*60)lateNight()}save();return}
   if(k==='close'){sheet=null;roomOff();AUD.street();renderLayer();return}
   if(k==='snake'){phoneOpen=false;mgOpen('snake');return}
+  if(k==='tempo'){tspd=(tspd+1)%3;try{localStorage.setItem('mz-tempo',tspd)}catch(e){}renderLayer();return}
   if(k==='mus'){AUD.toggleMusic();renderLayer();return}
   if(k==='sfx'){AUD.toggleSfx();renderLayer();return}
   if(k==='mgquit'){cancelAnimationFrame(MG&&MG.raf);MG=null;sheet=null;AUD.street();renderLayer();return}
@@ -1709,7 +1711,7 @@ function update(dt){
   }
   player.acc+=((spd-player.spd)/Math.max(dt,.001)-player.acc)*Math.min(1,dt*8);player.spd=spd;
   zoneCheck();emoteTick();if(S.dl)updDeliv(dt);ambUpdate(dt);
-  if(!S.dl){const prev=S.min;S.min+=dt*1000/MS_PER_MIN;checkClock(prev,S.min)}
+  if(!S.dl){const prev=S.min;S.min+=dt*1000/TSP[tspd][1];checkClock(prev,S.min)}
   if(sheet)return;
   const h=S.min/60;
   NPCS.forEach(n=>{
