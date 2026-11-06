@@ -862,7 +862,7 @@ function phoneHtml(){
   if(phoneTab==='trofei')body=trophyHtml();
   if(phoneTab==='missioni')body=missionHtml();
   if(phoneTab==='amici')body=relHtml();
-  if(phoneTab==='menu')body=`<div class="pcard"><p class="legend">La partita si salva da sola.</p><button class="btn-ghost" data-do="mus">Musica: ${AUD.mOn?'accesa':'spenta'}</button><button class="btn-ghost" data-do="sfx">Effetti: ${AUD.sOn?'accesi':'spenti'}</button><button class="btn-ghost" data-do="tempo">Scorrere del tempo: ${TSP[tspd][0]}</button><button class="btn-ghost" data-do="tut">Come si gioca</button>${canInstall?'<button class="btn-ghost" data-do="install">Installa sul telefono</button>':''}<button class="btn-ghost" data-do="title">Salva e torna al titolo</button><button class="btn-ghost" data-do="reset">Ricomincia da capo</button></div>`;
+  if(phoneTab==='menu')body=`<div class="pcard"><p class="legend">La partita si salva da sola.</p><button class="btn-ghost" data-do="mus">Musica: ${AUD.mOn?'accesa':'spenta'}</button><button class="btn-ghost" data-do="mvol">Volume musica: ${MVOL[mvi][0]}</button><button class="btn-ghost" data-do="sfx">Effetti: ${AUD.sOn?'accesi':'spenti'}</button><button class="btn-ghost" data-do="tempo">Scorrere del tempo: ${TSP[tspd][0]}</button><button class="btn-ghost" data-do="tut">Come si gioca</button>${canInstall?'<button class="btn-ghost" data-do="install">Installa sul telefono</button>':''}<button class="btn-ghost" data-do="title">Salva e torna al titolo</button><button class="btn-ghost" data-do="reset">Ricomincia da capo</button></div>`;
   const tb=tabs.map(([k,ic,lab])=>is97?`<button class="key" data-tab="${k}" aria-selected="${phoneTab===k}">${lab.toUpperCase()}${k==='msg'&&nb?`<span class="badge">${nb}</span>`:''}</button>`
     :`<button class="tab" data-tab="${k}" aria-selected="${phoneTab===k}"><span>${ic}</span>${lab}${k==='msg'&&nb?`<span class="badge">${nb}</span>`:''}</button>`).join('');
   if(is97)return`<div class="phov" data-bg="1"><div class="ph97"><div class="brand">NOKIA-ISH</div><div class="lcd">${body}</div><div class="keys">${tb}</div><button class="closek" data-do="phone">CHIUDI</button></div></div>`;
@@ -890,6 +890,7 @@ function act(k){
   if(k==='close'){sheet=null;roomOff();AUD.street();renderLayer();return}
   if(k==='snake'){phoneOpen=false;mgOpen('snake');return}
   if(k==='tempo'){tspd=(tspd+1)%3;try{localStorage.setItem('mz-tempo',tspd)}catch(e){}renderLayer();return}
+  if(k==='mvol'){mvi=(mvi+1)%MVOL.length;try{localStorage.setItem('mz-mvol',mvi)}catch(e){}if(AUD.music&&AUD.track){const b=AUD.track.name==='mirco-e-gabbah-fest-v2'?.4:.32;AUD.music.volume=b*MVOL[mvi][1]}renderLayer();return}
   if(k==='mus'){AUD.toggleMusic();renderLayer();return}
   if(k==='sfx'){AUD.toggleSfx();renderLayer();return}
   if(k==='mgquit'){cancelAnimationFrame(MG&&MG.raf);MG=null;sheet=null;AUD.street();renderLayer();return}
@@ -917,6 +918,7 @@ function toTitle(){AUD.stop();AUD.setEngine(false);S=null;sheet=null;phoneOpen=f
 
 
 /* ================= AUDIO ================= */
+const MVOL=[['Bassa',.25],['Media',.45],['Alta',.8]];let mvi=1;try{const v=localStorage.getItem('mz-mvol');if(v!==null&&+v>=0&&+v<3)mvi=+v}catch(e){}
 const AUD={ctx:null,music:null,track:null,mOn:true,sOn:true,engine:null,
   load(){try{const v=JSON.parse(localStorage.getItem('mz-audio')||'{}');if(v.m===false)this.mOn=false;if(v.s===false)this.sOn=false}catch(e){}},
   store(){try{localStorage.setItem('mz-audio',JSON.stringify({m:this.mOn,s:this.sOn}))}catch(e){}},
@@ -943,7 +945,7 @@ const AUD={ctx:null,music:null,track:null,mOn:true,sOn:true,engine:null,
   play(name,o={}){if(!this.music){this.music=new Audio();this.music.preload='auto';this.music.addEventListener('ended',()=>{if(this.track&&!this.track.loop){this.pi=(this.pi+1)%this.playlist.length;this.play(this.playlist[this.pi])}})}
     const m=this.music;this.track={name,loop:!!o.loop};
     if(!m.src.endsWith(name+'.mp3'))m.src='a/m/'+name+'.mp3';
-    m.loop=!!o.loop;m.volume=o.vol??.32;
+    m.loop=!!o.loop;this.vbase=null;m.volume=(o.vol??.32)*MVOL[mvi][1];
     if(o.start!=null){try{m.currentTime=o.start}catch(e){}}
     if(this.mOn){const p=m.play();if(p)p.catch(()=>{})}
     return m},
