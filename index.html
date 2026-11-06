@@ -633,7 +633,7 @@ function endDay(late){
   S.week++;S.day=newDay();S.min=7*60;S.riding=false;S.inside=null;S.dl=null;newMissions();planStreet();setTimeout(()=>AUD.voice('missioni'),900);
   const d=dateOf(S.week);S.day.w=pickWeather(d);if(WEATHER[S.day.w].note)notes.push(WEATHER[S.day.w].note);
   const pag=Math.round(5+S.fam/12);S.soldi+=pag;notes.push(`Paghetta della settimana: ${ERA[S.era].money(pag)}.`);
-  S.figo=clamp(S.figo-3);S.risp=clamp(S.risp-2);S.scuola=clamp(S.scuola-3);S.flags.gel=0;S.flags.sfuma=0;
+  S.figo=clamp(S.figo-Math.round(S.figo*.06));S.risp=clamp(S.risp-Math.round(S.risp*.07));S.scuola=clamp(S.scuola-Math.round(S.scuola*.08));S.flags.gel=0;S.flags.sfuma=0;
   if(d.getMonth()===11&&d.getDate()>=18&&!S.flags.xmas){S.flags.xmas=1;S.soldi+=45;notes.push(`Natale: dai parenti arrivano ${ERA[S.era].money(45)}.`)}
   if(d.getMonth()===1&&!S.flags.pagella){S.flags.pagella=1;const v=Math.round(S.scuola/10);
     if(v<6){S.fam=clamp(S.fam-12);notes.push(`Pagella del primo quadrimestre: media del ${v}. A casa è guerra fredda.`)}
@@ -719,7 +719,7 @@ function placeMenu(id){
     if(h>=9&&h<20){text=`${E.money(S.soldi)} in tasca. Il commesso ti guarda dall'alto in basso.`;
       const wear=E.shop.filter(x=>!x.cons);E.shop.forEach(it=>{const own=!it.cons&&S.items.includes(it.id);const used=it.cons&&((it.id==='gel'&&S.flags.gel)||(it.id==='sfuma'&&S.flags.sfuma));
         const wi=wear.indexOf(it),prev=wi>0?wear[wi-1]:null,lock=prev&&!own&&!S.items.includes(prev.id);
-        opt(it.n,own?"Già tuo":used?"Già fatto questa settimana":lock?`Prima: ${prev.n.split(' (')[0]}`:`${E.money(it.p)} · +${it.figo} figosità`,()=>buy(it),own||used||lock||S.soldi<it.p)})}
+        opt(it.n,own?"Già tuo":used?"Già fatto questa settimana":lock?`Prima: ${prev.n.split(' (')[0]}`:`${E.money(it.p)} · +${figoOf(it)} figosità`,()=>buy(it),own||used||lock||S.soldi<it.p)})}
     else text="Chiuso. Apre alle 9 e chiude alle 20.";
   }
   if(id==='officina'){title=E.signs.officina;const lvl=S.mezzo,max=lvl>=3,cost=TUNE_COST[lvl];
@@ -747,8 +747,9 @@ function attendSchool(late){
   return out;
 }
 const TUNE_COST=[25,45,80];
+const figoOf=it=>it.cons?Math.ceil(it.figo/3):Math.round(it.figo*.6);
 function buy(it){AUD.sfx('coin');S.soldi-=it.p;if(!it.cons)S.items.push(it.id);else S.flags[it.id]=1;delete S.look;if(playerTier()>=5)unlock('look');
-  const out=applyFx({figo:it.figo});out.unshift(['soldi',-it.p]);
+  const out=applyFx({figo:figoOf(it)});out.unshift(['soldi',-it.p]);
   return{r:`Preso: ${it.n}. Ti specchi nella vetrina.`,pre:out,keep:'negozio'}}
 function runOption(place,i){
   const m=placeMenu(place),op=m.o[i];if(!op||op.dis)return;
@@ -1580,9 +1581,9 @@ const MIS={talk:['Parla con 3 persone',3],school:['Vai a scuola',1],win:['Vinci 
 function newMissions(){const ids=Object.keys(MIS).sort(()=>Math.random()-.5).slice(0,3);S.mis=ids.map(id=>({id,p:0,done:false}));}
 function misLabel(m){let[l,g]=MIS[m.id];if(m.id==='money'&&S.era==='97')l='Guadagna 25.000 lire';return[l,g]}
 function mission(id,amt=1){if(!S||!S.mis)return;const m=S.mis.find(x=>x.id===id&&!x.done);if(!m)return;const[l,g]=misLabel(m);m.p=Math.min(g,m.p+amt);
-  if(m.p>=g){m.done=true;const r=rnd(8,15);S.soldi+=r;S.figo=clamp(S.figo+2);AUD.sfx('good');toast(`🎯 Missione completata: <b>${esc(l)}</b> <span class="up">+${ERA[S.era].money(r)} · +2 Figosità</span>`);
-    if(S.mis.every(x=>x.done)){S.risp=clamp(S.risp+3);unlock('missioni');setTimeout(()=>toast('🎯 Tutte le missioni del giorno! <span class="up">+3 Rispetto</span>'),900)}}}
-function missionHtml(){if(!S.mis)return'';return`<div class="pcard"><b>Missioni di oggi</b>${S.mis.map(m=>{const[l,g]=misLabel(m);return`<div class="mis ${m.done?'ok':''}"><span>${m.done?'✅':'🎯'}</span><div><b>${esc(l)}</b><i><b style="width:${m.p/g*100}%"></b></i></div><em>${m.p}/${g}</em></div>`}).join('')}<p class="legend">Ogni missione: soldi e +2 figosità. Tutte e tre: +3 rispetto.</p></div>`}
+  if(m.p>=g){m.done=true;const r=rnd(6,12);S.soldi+=r;AUD.sfx('good');toast(`🎯 Missione completata: <b>${esc(l)}</b> <span class="up">+${ERA[S.era].money(r)}</span>`);
+    if(S.mis.every(x=>x.done)){S.risp=clamp(S.risp+2);S.figo=clamp(S.figo+2);unlock('missioni');setTimeout(()=>toast('🎯 Tutte le missioni del giorno! <span class="up">+2 Figosità · +2 Rispetto</span>'),900)}}}
+function missionHtml(){if(!S.mis)return'';return`<div class="pcard"><b>Missioni di oggi</b>${S.mis.map(m=>{const[l,g]=misLabel(m);return`<div class="mis ${m.done?'ok':''}"><span>${m.done?'✅':'🎯'}</span><div><b>${esc(l)}</b><i><b style="width:${m.p/g*100}%"></b></i></div><em>${m.p}/${g}</em></div>`}).join('')}<p class="legend">Ogni missione: soldi. Tutte e tre: +2 figosità e +2 rispetto.</p></div>`}
 
 /* ================= RELAZIONI ================= */
 const RELS=[['prof','📚'],['compa','🤙'],['tipa','💗'],['bulli','👊'],['mirco','🩹'],['costa','🎣'],['purcello','🏍'],['renard','🔧']];
