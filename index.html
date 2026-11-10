@@ -287,6 +287,7 @@ canvas#cv{position:absolute;inset:0;width:100%;height:100%;touch-action:none}
 .challenged{background:#ff3d7f;color:#fff;border:3px solid #120d1c;border-radius:14px;padding:10px;font-weight:600;box-shadow:4px 4px 0 #120d1c;font-size:14px}
 #recbtn{position:absolute;right:10px;top:42%;z-index:4;width:46px;height:46px;border-radius:50%;border:3px solid #120d1c;background:#fff8e8;font-size:20px;box-shadow:3px 3px 0 #120d1c;cursor:pointer}#recbtn.on{background:#ff3d7f;color:#fff;font:800 15px Rubik,sans-serif;animation:hsp 1s infinite}.inroom #recbtn{display:none}
 .cardbox video{width:100%;max-height:62vh;border-radius:14px;background:#000}
+.cmt{background:rgba(255,255,255,.06);border-left:4px solid #ff3d7f;border-radius:10px;padding:8px 10px;font-size:13px;font-weight:600;margin:6px 0;animation:evIn .4s .25s both}.era97 .cmt,.ph97 .cmt{border-left-color:var(--lcd-dark);font-family:var(--f-lcd);background:rgba(0,0,0,.06)}
 </style>
 
 <div id="app"><div class="frame" id="frame">
@@ -679,14 +680,14 @@ function computeEnding(){
   return'anonimo';
 }
 const ENDINGS={
-  nonni:["Spedito dai nonni","Famiglia a zero. Ti caricano in macchina: resto dell'anno dai nonni in campagna, senza segnale e con le galline."],
-  bocciato:["Bocciato","Media sotto il 4. A settembre rifai l'anno, con gente più piccola che ti guarda come un fossile."],
-  'bocciato-leggenda':["Bocciato ma leggenda","Hai perso l'anno, ma in piazza sei un mito. Il prossimo settembre torni da veterano."],
-  influencer:["Influencer","Oltre 10 mila follower. Il preside ti chiede un video per l'open day. Tua madre ancora non ha capito cosa fai."],
-  re:["Re della piazza","Figosità e rispetto al massimo. Quando arrivi sul muretto, gli altri si spostano."],
-  fidanzato:["Fidanzato fisso","L'anno finisce con una storia vera. Estate al mare, gelato da dividere."],
-  secchione:["Secchione redento","Media altissima. I prof ti adorano, i tuoi pure. In piazza un po' meno."],
-  anonimo:["Anno tranquillo","Promosso, qualche amico, nessun disastro. Non sei diventato una leggenda, ma l'estate è tutta tua."]
+  nonni:["Esiliato dai nonni 🐔","Famiglia a zero. Ti caricano in macchina e ciao: resto dell'anno in campagna, senza segnale e senza dignità. Le galline però ti rispettano."],
+  bocciato:["Bocciato 💀","Media sotto il 4. A settembre rifai l'anno con quelli più piccoli che ti chiamano «zio». Brutto colpo per l'aura."],
+  'bocciato-leggenda':["Bocciato ma LEGGENDA 🔥","Anno perso, ma in piazza sei un mito vivente. A settembre torni da veterano e tutti ti salutano per primi."],
+  influencer:["Influencer 📱","Oltre 10k follower. Il preside ti chiede un reel per l'open day. Tua madre ancora non ha capito che lavoro fai."],
+  re:["RE DELLA PIAZZA 👑","Figosità e rispetto al massimo. Quando arrivi sul muretto gli altri si spostano da soli. Aura infinita."],
+  fidanzato:["Fidanzato ufficiale ❤️","L'anno finisce con una storia vera: estate al mare, gelato in due, foto di coppia ovunque. Cringe? Forse. Felice? Tantissimo."],
+  secchione:["Secchione redento 🤓","Media altissima. I prof ti adorano, i tuoi pure. In piazza ormai ti chiamano «il dottore»."],
+  anonimo:["NPC del quartiere 🫥","Promosso, qualche amico, zero drammi. Niente leggenda: quest'anno eri lo sfondo della storia di qualcun altro. L'anno prossimo però..."]
 };
 
 /* ================= EVENTS ENGINE ================= */
@@ -703,7 +704,7 @@ function chooseEvent(i){
   let out=applyFx(res.fx||{},res.set);if(res.look!=null)S.look=res.look;{const sum=Object.entries(res.fx||{}).reduce((a,[k,v])=>a+(k==='soldi'||k==='foll'?0:v),0);relAdd(ev.src,sum>0?2:sum<0?-2:0);if(sum>=5)emote('happy');else if(sum<=-5){emote('angry');camShake(6)}}if(res.fx2)out=out.concat(applyFx(res.fx2));
   if(res.mins||c.mins)advance(res.mins||c.mins);
   log(`${evWho(ev)}: ${res.r}`);
-  sheet={kind:'result',title:evWho(ev),text:res.r,fx:out,next:sheet.after||'close'};
+  sheet={kind:'result',title:evWho(ev),text:res.r,fx:out,next:sheet.after||'close',cm:chatComment(out)};
   if(sheet.title===ERA[S.era].names.tipa&&res.set&&res.set.tipa===true)sheet.text+=" ❤";
   renderLayer();
 }
@@ -879,7 +880,7 @@ function sheetHtml(){
   if(sheet.kind==='mg')return mgHtml();
   if(sheet.kind==='room')return roomHtml();
   if(sheet.kind==='quick')return quickHtml();
-  if(sheet.kind==='result'){return`<div class="sheet-wrap"><div class="sheet" role="dialog" aria-label="${esc(sheet.title)}"><h3>${esc(sheet.title)}</h3>${sheet.sub?`<p class="sub">${esc(sheet.sub)}</p>`:''}${sheet.text?`<p>${esc(sheet.text)}</p>`:''}${fxHtml(sheet.fx)}<button class="btn-main" data-do="cont">Ok</button></div></div>`}
+  if(sheet.kind==='result'){return`<div class="sheet-wrap"><div class="sheet" role="dialog" aria-label="${esc(sheet.title)}"><h3>${esc(sheet.title)}</h3>${sheet.sub?`<p class="sub">${esc(sheet.sub)}</p>`:''}${sheet.text?`<p>${esc(sheet.text)}</p>`:''}${sheet.cm?`<div class="cmt">${esc(sheet.cm)}</div>`:''}${fxHtml(sheet.fx)}<button class="btn-main" data-do="cont">${okLabel(sheet.fx)}</button></div></div>`}
   if(sheet.kind==='event'){const ev=EV[sheet.id],who=evWho(ev);
     return`<div class="sheet-wrap"><div class="sheet" role="dialog" aria-label="${esc(who)}"><div class="who"><div class="av">${esc(who[0])}</div><div><b>${esc(who)}</b><small>${hhmm(S.min)}</small></div></div>
     ${evImg(sheet.id)}<div class="bubble">${esc(evText(ev))}</div><div class="choices">${ev.c.map((c,i)=>{const pr=c.p!==undefined?Math.round(Math.min(.95,Math.max(.05,P(c.p)(S)))*100):null;const dis=c.req&&!c.req(S);
@@ -1298,7 +1299,7 @@ function renderStart(){
   const saved=load();let era=saved?.era||'26';
   const d=document.createElement('div');d.className='start';
   d.innerHTML=`<h1 class="logoh"><img src="a/logo.webp" alt="Maranzetor" onerror="this.parentNode.innerHTML='Maranze<span>tor</span>'"></h1>${new URLSearchParams(location.search).get('sfida')?`<div class="challenged">⚔️ Sei stato sfidato! Codice <b>${esc(new URLSearchParams(location.search).get('sfida'))}</b>: scegli l'epoca e premi «Accetta la sfida».</div>`:''}
-    <p class="lead">Un quartiere, un anno scolastico, una sola missione: diventare il re della piazza senza farti spedire dai nonni.</p>
+    <p class="lead">Un quartiere. Un anno. Una sola missione: diventare il Re della piazza 👑 senza farti spedire dai nonni.</p>
     <div class="era-pick" role="group" aria-label="Scegli l'epoca">
       <button class="era-card e97" data-era="97"><img src="a/p97c_0.webp" alt=""><b>1997</b><small>Motorino truccato, cabina a gettoni, Nokia e sala giochi.</small></button>
       <button class="era-card" data-era="26"><img src="a/p26c_0.webp" alt=""><b>2026</b><small>Monopattino, TikTok, drop di sneakers e chat di classe.</small></button></div>
@@ -1421,7 +1422,7 @@ function postcard(){const[t]=ENDINGS[S.ending],E=ERA[S.era],ek={'bocciato-leggen
       x.fillStyle='#fff';x.font='800 26px Rubik, sans-serif';x.fillText(S[k],bx+170,1210)});
     x.fillStyle='rgba(255,255,255,.55)';x.font='500 26px Rubik, sans-serif';x.fillText('Gioca anche tu: ilgabbah-ux.github.io/maranzetor',70,1305);
     c.toBlob(async b=>{if(!b)return;const f=new File([b],'maranzetor-cartolina.png',{type:'image/png'});
-      if(navigator.canShare&&navigator.canShare({files:[f]})){try{await navigator.share({files:[f],title:'Maranzetor',text:`Ho chiuso l'anno da «${t}» su Maranzetor! ilgabbah-ux.github.io/maranzetor`});return}catch(e){if(e&&e.name==='AbortError')return}}
+      if(navigator.canShare&&navigator.canShare({files:[f]})){try{await navigator.share({files:[f],title:'Maranzetor',text:`Ho chiuso l'anno da «${t}» su Maranzetor 💀 Tu che finale fai? 👉 ilgabbah-ux.github.io/maranzetor`});return}catch(e){if(e&&e.name==='AbortError')return}}
       const u=URL.createObjectURL(b),d=document.createElement('div');d.className='cardov';
       d.innerHTML=`<div class="cardbox"><img src="${u}" alt="Cartolina"><p class="legend">Tieni premuto sull'immagine per salvarla, o scaricala.</p><a class="btn-main" href="${u}" download="maranzetor-cartolina.png">Scarica</a><button class="btn-ghost">Chiudi</button></div>`;
       d.querySelector('button').onclick=()=>d.remove();frame.appendChild(d)},'image/png')}}
@@ -1595,22 +1596,27 @@ function updDeliv(dt){const d=S.dl;if(!d)return;d.t-=dt;
     if(d.n>=(d.fl?5:3)){const e=d.earn;S.dl=null;advance(90);applyFx({risp:2});if(e>=40)unlock('rider');toast(`Turno finito: ${ERA[S.era].money(e)} guadagnati.`);return}
     d.to=delivTarget();d.t=d.fl?40:30;d.via=pick(VIE);toast(`${d.fl?'📄':'🍕'} Prossima: <b>${d.via}</b>`)}
   else if(d.t<-25){S.dl=null;toast("🍕 Tony ti ha chiamato: troppo lento, ha mandato un altro.");emote('angry')}}
+function delivGoal(){const d=S.dl;if(!d)return null;if(d.to.z===S.zone)return[d.to.u,d.to.v,false];return S.zone===1?[0.6,9.9,true]:[29.4,9.9,true]}
 function drawDelivMarker(t){const d=S.dl;if(!d||d.to.z!==S.zone)return;const[x,y]=iso(d.to.u,d.to.v),b=Math.sin(t*5)*6;
-  ctx.fillStyle='rgba(255,61,127,.25)';ctx.beginPath();ctx.ellipse(x,y,34,14,0,0,7);ctx.fill();
-  ctx.fillStyle='#ff3d7f';ctx.strokeStyle='#fff';ctx.lineWidth=3;ctx.beginPath();ctx.arc(x,y-60+b,16,0,7);ctx.fill();ctx.stroke();ctx.font='18px sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(d.fl?'📄':'🍕',x,y-60+b)}
-function drawDelivHud(camx,camy){const d=S.dl;if(!d)return;const W=cv.width,H=cv.height;
-  ctx.fillStyle='rgba(12,10,16,.85)';ctx.strokeStyle=d.t<8?'#ff3d7f':'#e9b949';ctx.lineWidth=2*Z;const bw=190*Z,bx=W/2-bw/2,by=H-150*Z;
-  ctx.beginPath();ctx.roundRect(bx,by,bw,30*Z,15*Z);ctx.fill();ctx.stroke();ctx.fillStyle='#fff';ctx.font=`700 ${13*Z}px Rubik, sans-serif`;ctx.textAlign='center';ctx.textBaseline='middle';
-  ctx.fillText(`${d.fl?'📄':'🍕'} ${d.via} · ${Math.max(0,Math.ceil(d.t))}s · ${d.n}/${d.fl?5:3}`,W/2,by+15*Z);
-  if(d.to.z!==S.zone)return;const[wx,wy]=iso(d.to.u,d.to.v),sx=(wx-camx)*Z,sy=(wy-60-camy)*Z;
-  if(sx>20&&sx<W-20&&sy>20&&sy<H-20)return;const a=Math.atan2(sy-H/2,sx-W/2),r=Math.min(W,H)*.42,ax=W/2+Math.cos(a)*r,ay=H/2+Math.sin(a)*r;
-  ctx.save();ctx.translate(ax,ay);ctx.rotate(a);ctx.fillStyle='#ff3d7f';ctx.beginPath();ctx.moveTo(18*Z,0);ctx.lineTo(-10*Z,-12*Z);ctx.lineTo(-10*Z,12*Z);ctx.closePath();ctx.fill();ctx.restore()}
+  ctx.save();ctx.globalCompositeOperation='lighter';const g=ctx.createLinearGradient(0,y-520,0,y);g.addColorStop(0,'rgba(255,61,127,0)');g.addColorStop(1,`rgba(255,61,127,${.35+Math.sin(t*4)*.1})`);ctx.fillStyle=g;ctx.fillRect(x-14,y-520,28,520);ctx.restore();
+  ctx.strokeStyle='#ff3d7f';ctx.lineWidth=4;for(let k=0;k<2;k++){const r=(t*1.2+k*.5)%1;ctx.globalAlpha=1-r;ctx.beginPath();ctx.ellipse(x,y,20+r*50,8+r*20,0,0,7);ctx.stroke()}ctx.globalAlpha=1;
+  ctx.fillStyle='#ff3d7f';ctx.strokeStyle='#fff';ctx.lineWidth=3;ctx.beginPath();ctx.arc(x,y-70+b,20,0,7);ctx.fill();ctx.stroke();ctx.font='22px sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(d.fl?'📄':'🍕',x,y-70+b)}
+function drawDelivHud(camx,camy){const d=S.dl;if(!d)return;const W=cv.width,H=cv.height,G=delivGoal(),U=DPR;
+  ctx.fillStyle='rgba(12,10,16,.88)';ctx.strokeStyle=d.t<8?'#ff3d7f':'#e9b949';ctx.lineWidth=2*U;const bw=250*U,bx=W/2-bw/2,by=188*U;
+  ctx.beginPath();ctx.roundRect(bx,by,bw,36*U,18*U);ctx.fill();ctx.stroke();ctx.fillStyle=d.t<8?'#ff3d7f':'#fff';ctx.font=`800 ${15*U}px Rubik, sans-serif`;ctx.textAlign='center';ctx.textBaseline='middle';
+  ctx.fillText(`${d.fl?'📄':'🍕'} ${d.via} · ${Math.max(0,Math.ceil(d.t))}s · ${d.n}/${d.fl?5:3}`,W/2,by+18*U);
+  const[pwx,pwy]=iso(player.u,player.v),psx=(pwx-camx)*Z,psy=(pwy-95-camy)*Z,[gwx,gwy]=iso(G[0],G[1]),gsx=(gwx-camx)*Z,gsy=(gwy-camy)*Z;
+  const a=Math.atan2(gsy-psy,gsx-psx),dist=Math.hypot(G[0]-player.u,G[1]-player.v),r=95*U,ax=psx+Math.cos(a)*r,ay=psy+Math.sin(a)*r,pul=1+Math.sin(performance.now()/160)*.08;
+  if(dist<1.2&&!G[2])return;
+  ctx.save();ctx.translate(ax,ay);ctx.rotate(a);ctx.scale(pul,pul);ctx.fillStyle='#ff3d7f';ctx.strokeStyle='#120d1c';ctx.lineWidth=3*U;
+  ctx.beginPath();ctx.moveTo(30*U,0);ctx.lineTo(-16*U,-20*U);ctx.lineTo(-6*U,0);ctx.lineTo(-16*U,20*U);ctx.closePath();ctx.fill();ctx.stroke();ctx.restore();
+  const lx=psx+Math.cos(a)*(r+40*U),ly=psy+Math.sin(a)*(r+40*U);ctx.font=`900 ${16*U}px Rubik, sans-serif`;ctx.lineWidth=5*U;ctx.strokeStyle='#120d1c';const lab=G[2]?(S.zone===1?'← Centro':'Stazione →'):`${Math.round(dist*8)} m`;ctx.strokeText(lab,lx,ly);ctx.fillStyle='#fff';ctx.fillText(lab,lx,ly)}
 
 /* ================= MISSIONI ================= */
-const MIS={talk:['Parla con 3 persone',3],school:['Vai a scuola',1],win:['Vinci un minigioco',1],money:['Guadagna 25 €',25],edt:["Saluta un amico dell'EDT",1],
-  visit:['Fai un giro al Quartiere Stazione',1],deliv:['Fai 2 consegne di pizza',2],dance:['Balla in disco',1],figo:['Guadagna 6 di figosità',6]};
+const MIS={talk:['Fai il simpatico con 3 persone',3],school:['Presentati a scuola (sì, davvero)',1],win:['Vinci un minigioco',1],money:['Fai 25 € onestamente',25],edt:["Saluta uno dell'EDT",1],
+  visit:['Fatti un giro in Stazione',1],deliv:['Consegna 2 pizze ancora calde',2],dance:['Spacca in pista',1],figo:['Farma 6 di figosità',6]};
 function newMissions(){const ids=Object.keys(MIS).sort(()=>Math.random()-.5).slice(0,3);S.mis=ids.map(id=>({id,p:0,done:false}));}
-function misLabel(m){let[l,g]=MIS[m.id];if(m.id==='money'&&S.era==='97')l='Guadagna 25.000 lire';return[l,g]}
+function misLabel(m){let[l,g]=MIS[m.id];if(m.id==='money'&&S.era==='97')l='Fai 25.000 lire onestamente';return[l,g]}
 function mission(id,amt=1){if(!S||!S.mis)return;const m=S.mis.find(x=>x.id===id&&!x.done);if(!m)return;const[l,g]=misLabel(m);m.p=Math.min(g,m.p+amt);
   if(m.p>=g){m.done=true;const r=rnd(6,12);S.soldi+=r;AUD.sfx('good');toast(`🎯 Missione completata: <b>${esc(l)}</b> <span class="up">+${ERA[S.era].money(r)}</span>`);
     if(S.mis.every(x=>x.done)){S.risp=clamp(S.risp+2);S.figo=clamp(S.figo+2);unlock('missioni');setTimeout(()=>toast('🎯 Tutte le missioni del giorno! <span class="up">+2 Figosità · +2 Rispetto</span>'),900)}}}
@@ -1975,7 +1981,7 @@ function idCard(){const c=document.createElement('canvas');c.width=1080;c.height
   x.save();x.translate(540,880);x.rotate(-.04);x.fillStyle='#e9b949';x.strokeStyle='#120d1c';x.lineWidth=6;x.beginPath();x.roundRect(-400,-56,800,112,20);x.fill();x.stroke();x.fillStyle='#120d1c';x.font='900 50px "Bricolage Grotesque", sans-serif';x.textAlign='center';x.fillText(ironicTitle().toUpperCase(),0,18);x.restore();
   ['figo','risp','scuola','fam'].forEach((k,i)=>{const y=990+i*62;x.fillStyle='#120d1c';x.font='700 30px Rubik, sans-serif';x.textAlign='left';x.fillText(LABEL[k],140,y+22);x.fillStyle='#ddd0b4';x.beginPath();x.roundRect(400,y,500,30,15);x.fill();x.fillStyle=POPCOL[k];x.beginPath();x.roundRect(400,y,Math.max(30,500*S[k]/100),30,15);x.fill();x.fillStyle='#120d1c';x.textAlign='right';x.fillText(S[k],950,y+24)});
   x.textAlign='center';x.fillStyle='#8a6d3b';x.font='600 28px Rubik, sans-serif';x.fillText('Fai la tua: ilgabbah-ux.github.io/maranzetor',540,1270);
-  c.toBlob(b=>b&&shareFile(b,'carta-maranza.png',`Sono "${ironicTitle()}" su Maranzetor 😎 Tu che maranza sei? ilgabbah-ux.github.io/maranzetor`),'image/png')}
+  c.toBlob(b=>b&&shareFile(b,'carta-maranza.png',`Ufficiale: sono «${ironicTitle()}» 😎 Tu che maranza sei? Fai il test 👉 ilgabbah-ux.github.io/maranzetor`),'image/png')}
 
 /* ================= PARTITA VELOCE E SFIDA DEL GIORNO ================= */
 const ORIG_RANDOM=Math.random;
@@ -1989,7 +1995,7 @@ function quickEnd(){const sc=quickScore(),code=S.code||'',key='mz-best-'+(code||
 function quickHtml(){const q=S.quickDone,code=S.code;return`<div class="sheet-wrap"><div class="sheet quick"><p class="kicker">${code?'Sfida '+esc(code):'Partita veloce'}</p><h2>${q.sc} punti</h2>
   ${q.rec?'<p class="rec-badge">🏆 Nuovo record!</p>':`<p class="legend">Il tuo record: ${q.best}</p>`}<p>${esc(ironicTitle())} · Lv ${repLvl()} ${REP[repLvl()-1][1]}</p>
   <button class="btn-main" data-do="qshare">${code?'Sfida gli amici':'Condividi il punteggio'}</button><button class="btn-ghost" data-do="idcard">La mia carta d'identità</button><button class="btn-ghost" data-do="qretry">Riprova</button><button class="btn-ghost" data-do="restart">Menu</button></div></div>`}
-async function qShare(){const q=S.quickDone,code=S.code,url=`https://ilgabbah-ux.github.io/maranzetor/${code?'?sfida='+code:''}`,text=code?`Ho fatto ${q.sc} punti nella sfida ${code} di Maranzetor 😎 Riesci a battermi? ${url}`:`Ho fatto ${q.sc} punti in una giornata da maranza su Maranzetor! ${url}`;
+async function qShare(){const q=S.quickDone,code=S.code,url=`https://ilgabbah-ux.github.io/maranzetor/${code?'?sfida='+code:''}`,text=code?`🔥 ${q.sc} punti nella sfida del giorno di Maranzetor. Scommetto che non mi batti 😏 👉 ${url}`:`🔥 ${q.sc} punti in una giornata da maranza. Tu quanti ne fai? 👉 ${url}`;
   if(navigator.share){try{await navigator.share({text});return}catch(e){if(e&&e.name==='AbortError')return}}try{await navigator.clipboard.writeText(text);toast('Messaggio copiato: incollalo dove vuoi!')}catch(e){toast(esc(text))}}
 function startQuick(era,name,sex,code){SAVE='maranzetor-quick';if(code)seedRandom(code);else unseed();newGame(era,name,{quick:true,code,sex})}
 
@@ -2011,6 +2017,14 @@ const evImg=id=>EVP[id]?`<img class="evimg" src="a/${EVP[id]}.webp" alt="" onerr
 let clockTaps=0;
 $('hud').addEventListener('click',e=>{if(e.target.closest('[data-rec]')){startClip();return}if(e.target.closest('.clock')){clockTaps++;if(clockTaps>=5){clockTaps=0;giroEasy()}}});
 
+
+const CMT={g26:['@fra.zio: LEGGENDA 🔥','@giuly_04: no vabbè sei troppo 😍','@il_bomber: +1000 aura','@kevin.official: W ragazzo','@nonna_pina: bravo nipote ❤️','@chat: ICONICO 💅','@asia.x: questo è il mio tipo 👀'],
+ b26:['@fra.zio: 💀💀💀','@chat: L + ratio','@giuly_04: cringe zio','@il_bomber: -500 aura','@mamma: TORNA A CASA SUBITO','@chat: chi glielo dice? 😭','@kevin.official: fra ma sei serio?'],
+ g97:['SMS dal Compa: 6 1 MITO!!!','SMS: domani a scuola tt ne parlano','SMS dalla tipa: :-) xké nn mi kiami?','SMS dal Compa: GRANDE ZIO'],
+ b97:['SMS dal Compa: ahahah ke figura','SMS: lo sa già tutto il paese','SMS da Mamma: TORNA A CASA. SUBITO.','SMS dal Compa: 6 proprio 1 pollo']};
+function chatComment(out){const sum=(out||[]).reduce((a,[k,v])=>a+(k==='soldi'||k==='foll'?0:v),0);if(Math.abs(sum)<3||Math.random()<.25)return'';
+  const pre=S.era==='97'?'📟 ':'💬 ',L=CMT[(sum>0?'g':'b')+S.era];return pre+L[Math.floor(Math.random()*L.length)]}
+function okLabel(fx){const sum=(fx||[]).reduce((a,[k,v])=>a+(k==='soldi'||k==='foll'?0:v),0);const L=sum>=4?['Andiamo! 🔥','Ci sta 😎','Grande!','Next 👑']:sum<=-4?['Vabbè 💀','Fa niente…','Ok, ok 🙃','Si riparte']:['Ok','Avanti','Vai'];return L[Math.floor(Math.random()*L.length)]}
 /* ================= CANVAS / LOOP ================= */
 const cv=$('cv'),ctx=cv.getContext('2d');let Z=1,DPR=1;
 function resize(){DPR=Math.min(matchMedia('(pointer:coarse)').matches?1.75:2,window.devicePixelRatio||1);const r=frame.getBoundingClientRect();cv.width=Math.round(r.width*DPR);cv.height=Math.round(r.height*DPR);
