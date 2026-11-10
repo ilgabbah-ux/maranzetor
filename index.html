@@ -282,6 +282,16 @@ canvas#cv{position:absolute;inset:0;width:100%;height:100%;touch-action:none}
 .era97 .cmt{font-family:var(--f-body);border-left-color:#7dffb0}
 .toast{font-family:var(--f-body)}
 .ph97 .btn-main,.ph97 .btn-ghost{background:var(--lcd-dark)!important;color:var(--lcd)!important;border:0!important;border-radius:0!important;font:400 21px var(--f-lcd)!important;box-shadow:none!important;transform:none!important}
+
+/* ===== testi più grandi ===== */
+.sheet h3{font-size:28px}.sheet p{font-size:18px;line-height:1.45}.bubble{font-size:18px}.choice{font-size:17px;padding:15px 16px}
+.fx span{font-size:16px;padding:6px 11px}.cmt{font-size:15px!important}.btn-main{font-size:22px;padding:16px}.btn-ghost{font-size:16px}
+.who b{font-size:18px}.who small{font-size:13px}
+.clock{font-size:28px}.clock small{font-size:12px}.wk{font-size:13px}.mini{font-size:12px;grid-template-columns:auto 60px}.mini i{height:6px}
+.cash{font-size:24px}.cash small{font-size:13px}.hud .mispill{font-size:16px}.hud .rep b{font-size:16px}
+.prompt{font-size:16px;padding:9px 16px}.toast{font-size:15px;padding:9px 14px}.rprompt{font-size:16px}
+.pcard{font-size:15px}.mis b,.troph b{font-size:15px}.legend{font-size:13px}.hs span{font-size:14px}.tutpill{font-size:15px}
+@media (orientation:landscape) and (max-height:560px){.sheet p,.bubble{font-size:16px}.choice{font-size:15px;padding:11px 14px}.clock{font-size:22px}}
 </style>
 
 <div id="app"><div class="frame" id="frame">
@@ -1058,7 +1068,7 @@ function drawCar(c,u,v){const back=(c.s||1)<0,img=IMG[`cars${back?'b':''}${S.era
   ctx.save();ctx.translate(sx,sy);if((c.d==='x')!==back)ctx.scale(-1,1);ctx.drawImage(img,-w/2,-h*.82,w,h);ctx.restore();
   if(c.say&&c.say.until>performance.now()){c._say=c.say}}
 function lifeLights(glow,dk){CARS.forEach(c=>{const[u,v]=carUV(c);const g=(c.s||1)*.9,[wx,wy]=iso(u+(c.d==='x'?g:0),v+(c.d==='y'?g:0));glow(wx,wy-20,90,'255,245,200',dk*.45)})}
-function lifeLabels(S2,Z){const now=performance.now();CARS.forEach(c=>{if(!c.say||c.say.until<now)return;const[u,v]=carUV(c);const[wx,wy]=iso(u,v);const[sx,sy]=S2(wx,wy-120);ctx.font=`700 ${12*Z}px Rubik, sans-serif`;const w=ctx.measureText(c.say.t).width+16*Z;ctx.fillStyle="#fff";ctx.beginPath();ctx.roundRect(sx-w/2,sy-12*Z,w,24*Z,12*Z);ctx.fill();ctx.fillStyle="#c0303a";ctx.fillText(c.say.t,sx,sy+.5*Z)})}
+function lifeLabels(S2,Z0){const Z=Math.max(Z0,DPR*1.2);const now=performance.now();CARS.forEach(c=>{if(!c.say||c.say.until<now)return;const[u,v]=carUV(c);const[wx,wy]=iso(u,v);const[sx,sy]=S2(wx,wy-120);ctx.font=`700 ${12*Z}px Rubik, sans-serif`;const w=ctx.measureText(c.say.t).width+16*Z;ctx.fillStyle="#fff";ctx.beginPath();ctx.roundRect(sx-w/2,sy-12*Z,w,24*Z,12*Z);ctx.fill();ctx.fillStyle="#c0303a";ctx.fillText(c.say.t,sx,sy+.5*Z)})}
 
 /* ================= MINIGAMES ================= */
 let MG=null;
@@ -2139,10 +2149,11 @@ function drawProp(c,p){const img=IMG[p.img];if(!img)return;const[sx,sy]=iso(p.u,
   c.save();if(p.flip){c.translate(sx,0);c.scale(-1,1);c.translate(-sx,0)}c.drawImage(img,sx-w/2,sy-h+6,w,h);c.restore()}
 function inFront(o,b){const{lx,base}=bScreen(b);const[sx]=iso(o.u,o.v);if(sx<lx-30||sx>lx+base+30)return false;return o.u>=b.x+b.w-.05||o.v>=b.y+b.h-.05}
 
+let LZ=1;
 function draw(){
   ctx.setTransform(1,0,0,1,0,0);ctx.fillStyle="#141017";ctx.fillRect(0,0,cv.width,cv.height);
   if(!S||!ground)return;
-  camK+=((S.riding?.86:1)-camK)*(1-Math.exp(-fdt*2.2));const Zb=Z;Z=Zb*camK;
+  camK+=((S.riding?.86:1)-camK)*(1-Math.exp(-fdt*2.2));const Zb=Z;Z=Zb*camK;LZ=Math.max(Z,DPR*1.2);
   const[px,py]=iso(player.u,player.v);
   const vw=cv.width/Z,vh=cv.height/Z;
   const tx=px-vw/2+(player.vu-player.vv)*HW*.45,ty=py-60-vh/2+(player.vu+player.vv)*HH*.45;
@@ -2193,9 +2204,9 @@ function draw(){
   const S2=(wx,wy)=>[(wx-cx)*Z,(wy-cy)*Z];
   NPCS.forEach(n=>{if(!n.vis)return;const[wx,wy]=iso(n.u,n.v);const[sx,sy]=S2(wx,wy-(n.hgt||165)-18);
     const d=Math.hypot(n.u-player.u,n.v-player.v);
-    if(!S.day.talked[n.role]&&eventsFor(n.role).length){const b=Math.sin(now/220)*4*Z;ctx.fillStyle="#e9b949";ctx.strokeStyle="#1b1408";ctx.lineWidth=2*Z;ctx.beginPath();ctx.arc(sx,sy-6*Z+b,11*Z,0,7);ctx.fill();ctx.stroke();ctx.fillStyle="#1b1408";ctx.font=`800 ${15*Z}px Rubik, sans-serif`;ctx.fillText("!",sx,sy-5*Z+b)}
-    if(d<2.6){ctx.font=`600 ${11*Z}px Rubik, sans-serif`;const w=ctx.measureText(n.name).width+12*Z;const[nx,ny]=S2(wx,wy+16);ctx.fillStyle="rgba(10,8,14,.72)";ctx.beginPath();ctx.roundRect(nx-w/2,ny-9*Z,w,18*Z,9*Z);ctx.fill();ctx.fillStyle="#fff";ctx.fillText(n.name,nx,ny+.5*Z)}
-    if(n.say&&n.say.until>now){ctx.font=`500 ${12*Z}px Rubik, sans-serif`;const w=ctx.measureText(n.say.t).width+18*Z;const bx=Math.max(6,Math.min(cv.width-w-6,sx-w/2)),by=sy-38*Z;
+    if(!S.day.talked[n.role]&&eventsFor(n.role).length){const b=Math.sin(now/220)*4*LZ;ctx.fillStyle="#e9b949";ctx.strokeStyle="#1b1408";ctx.lineWidth=2*LZ;ctx.beginPath();ctx.arc(sx,sy-6*LZ+b,11*LZ,0,7);ctx.fill();ctx.stroke();ctx.fillStyle="#1b1408";ctx.font=`800 ${15*LZ}px Rubik, sans-serif`;ctx.fillText("!",sx,sy-5*LZ+b)}
+    if(d<2.6){ctx.font=`600 ${13*LZ}px Rubik, sans-serif`;const w=ctx.measureText(n.name).width+12*LZ;const[nx,ny]=S2(wx,wy+16);ctx.fillStyle="rgba(10,8,14,.72)";ctx.beginPath();ctx.roundRect(nx-w/2,ny-9*LZ,w,18*LZ,9*LZ);ctx.fill();ctx.fillStyle="#fff";ctx.fillText(n.name,nx,ny+.5*LZ)}
+    if(n.say&&n.say.until>now){ctx.font=`500 ${14*LZ}px Rubik, sans-serif`;const w=ctx.measureText(n.say.t).width+18*LZ;const bx=Math.max(6,Math.min(cv.width-w-6,sx-w/2)),by=sy-38*LZ;
       ctx.fillStyle="#fff";ctx.beginPath();ctx.roundRect(bx,by,w,26*Z,13*Z);ctx.fill();ctx.beginPath();ctx.moveTo(sx-6*Z,by+25*Z);ctx.lineTo(sx+6*Z,by+25*Z);ctx.lineTo(sx,by+33*Z);ctx.fill();ctx.fillStyle="#141017";ctx.fillText(n.say.t,bx+w/2,by+13.5*Z)}
   });
   lifeLabels(S2,Z);
