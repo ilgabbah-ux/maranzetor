@@ -7,7 +7,7 @@
 </head><body><title>Maranzetor</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,800&family=Rubik:wght@400;500;700&family=VT323&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,800&family=Lilita+One&family=Rubik:wght@400;500;700&family=VT323&display=swap">
 <style>
 /* Layout: full-height game column; pixel city canvas with HTML HUD, touch controls, sheets and a phone overlay. Single dark world by choice. */
 :root{
@@ -59,11 +59,6 @@ canvas#cv{position:absolute;inset:0;width:100%;height:100%;touch-action:none}
 .mini i.low b{background:var(--red)}
 .cash{font-family:var(--f-display);font-weight:800;font-size:18px;text-align:right;font-variant-numeric:tabular-nums}
 .cash small{display:block;font:500 11px var(--f-body);color:var(--muted)}
-.era97 .hud .box{background:rgba(179,197,138,.92);color:var(--lcd-dark);border-color:var(--lcd-dark);border-radius:4px;font-family:var(--f-lcd)}
-.era97 .clock,.era97 .cash{font-family:var(--f-lcd);font-weight:400;font-size:26px}
-.era97 .clock small,.era97 .wk,.era97 .mini,.era97 .cash small{color:var(--lcd-dark);font-family:var(--f-lcd);font-size:15px}
-.era97 .mini i{background:var(--lcd-mid);border-radius:0}
-.era97 .mini i b{background:var(--lcd-dark)}
 .prompt{position:absolute;left:50%;bottom:calc(132px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:rgba(12,10,16,.8);border:1px solid var(--gold);color:var(--ink);padding:7px 12px;border-radius:99px;font-size:13px;white-space:nowrap;pointer-events:none}
 .prompt b{color:var(--gold)}
 .toasts{position:absolute;left:0;right:0;top:96px;display:flex;flex-direction:column;align-items:center;gap:6px;pointer-events:none;padding:0 10px}
@@ -107,21 +102,6 @@ canvas#cv{position:absolute;inset:0;width:100%;height:100%;touch-action:none}
 .gauge .zone{position:absolute;top:0;bottom:0;background:rgba(111,220,140,.35);border-left:2px solid var(--ok);border-right:2px solid var(--ok)}
 .gauge .needle{position:absolute;top:-4px;bottom:-4px;width:4px;margin-left:-2px;background:var(--gold);border-radius:2px;box-shadow:0 0 12px var(--gold)}
 .rpm{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);font-variant-numeric:tabular-nums}
-.era97 .sheet{background:var(--lcd);color:var(--lcd-dark);font-family:var(--f-lcd);font-size:21px;border-radius:6px 6px 0 0;border-top:4px solid var(--lcd-dark)}
-.era97 .sheet h3{font-family:var(--f-lcd);font-weight:400;font-size:28px}
-.era97 .sheet .sub,.era97 .who small{color:var(--lcd-dark);opacity:.75}
-.era97 .av{background:var(--lcd-dark);color:var(--lcd);border-radius:0}
-.era97 .bubble{background:rgba(40,51,29,.12);border-radius:0;font-size:21px}
-.era97 .choice{background:none;border:2px solid var(--lcd-dark);border-radius:0;font-size:20px}
-.era97 .choice:hover,.era97 .choice:focus-visible{background:var(--lcd-dark);color:var(--lcd)}
-.era97 .choice em{color:inherit;font-size:18px}
-.era97 .fx span{background:var(--lcd-dark);color:var(--lcd);border-radius:0;font-size:17px;font-weight:400}
-.era97 .btn-main{background:var(--lcd-dark);color:var(--lcd);border-radius:0;font:400 24px var(--f-lcd)}
-.era97 .btn-ghost{border-color:var(--lcd-dark);border-radius:0;font:400 20px var(--f-lcd)}
-.era97 .gauge{background:var(--lcd-mid);border:2px solid var(--lcd-dark);border-radius:0}
-.era97 .gauge .zone{background:var(--lcd);border-color:var(--lcd-dark)}
-.era97 .gauge .needle{background:var(--lcd-dark);box-shadow:none}
-.era97 .rpm{color:var(--lcd-dark);font-size:16px}
 
 /* phone overlay */
 .phov{position:absolute;inset:0;background:rgba(5,4,8,.6);display:flex;align-items:center;justify-content:center;z-index:6;animation:fade .15s;padding:14px}
@@ -177,14 +157,12 @@ canvas#cv{position:absolute;inset:0;width:100%;height:100%;touch-action:none}
 [hidden]{display:none!important}
 .interior{margin:-6px -6px 0;border-radius:16px;overflow:hidden;background:radial-gradient(90% 90% at 50% 60%,rgba(233,185,73,.16),rgba(255,255,255,.02));display:grid;place-items:center;flex:none}
 .interior img{max-height:200px;width:auto;max-width:100%}
-.era97 .interior{border-radius:0;background:rgba(40,51,29,.1)}
 .mg{gap:10px}.mgc{width:100%;height:230px;border-radius:14px;background:#120e18;display:block;touch-action:none}.mgc.tall{height:300px}.mgc.snake{background:#b3c58a;border-radius:6px}
 .lanes{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}.lane{height:62px;border-radius:14px;border:0;background:var(--glass2);font-size:24px;touch-action:manipulation}.lane:active{background:var(--gold);color:#1b1408}
 .btn-main.big{font-size:24px;padding:20px;touch-action:manipulation}
 .hearts{font-size:20px;color:#ff3d7f;display:flex;gap:6px;align-items:center}.hearts span{font:700 14px var(--f-body);color:var(--ink);margin-right:6px}.hearts b{color:var(--muted);font-weight:400}
 .tbar{height:8px;border-radius:8px;background:var(--glass2);overflow:hidden}.tbar i{display:block;height:100%;background:var(--gold);width:100%}
 .pad{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}.pad button{height:56px;border:0;border-radius:12px;background:#43505e;color:#dfe7ef;font-size:22px;touch-action:manipulation}
-.era97 .mgc{background:#1d2516}.era97 .lane{background:var(--lcd-mid);border-radius:0;color:var(--lcd-dark)}.era97 .tbar{background:var(--lcd-mid);border-radius:0}.era97 .tbar i{background:var(--lcd-dark)}.era97 .hearts span{color:var(--lcd-dark);font-family:var(--f-lcd)}
 .endimg{width:100%;max-width:420px;align-self:center;border-radius:20px;box-shadow:0 10px 30px rgba(0,0,0,.5)}
 @media (orientation:landscape) and (max-height:560px){.interior img{max-height:110px}.mgc{height:42vh}.mgc.tall{height:46vh}.lane{height:46px}.pad button{height:40px}.endimg{max-width:240px}}
 .tut{align-items:stretch;text-align:left}
@@ -193,7 +171,6 @@ canvas#cv{position:absolute;inset:0;width:100%;height:100%;touch-action:none}
 .tutart span{font-size:72px;line-height:1}
 .dots{display:flex;gap:6px;justify-content:center}.dots i{width:7px;height:7px;border-radius:50%;background:var(--glass2)}.dots i.on{background:var(--gold);width:20px;border-radius:4px}
 .tutbtns{display:flex;gap:10px}.tutbtns>*{flex:1}
-.era97 .tutart{background:rgba(40,51,29,.12);border-radius:0}.era97 .dots i{background:var(--lcd-mid);border-radius:0}.era97 .dots i.on{background:var(--lcd-dark)}
 .installwrap{z-index:9}
 .inst ol{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:6px;line-height:1.45}
 .instic img{width:76px;height:76px;border-radius:18px;box-shadow:0 6px 16px rgba(0,0,0,.4)}
@@ -275,7 +252,6 @@ canvas#cv{position:absolute;inset:0;width:100%;height:100%;touch-action:none}
 .hud .rep{display:flex;flex-direction:column;gap:3px;min-width:50px}.hud .rep b{font-size:13px;color:var(--gold)}.hud .rep small{font-size:10px;opacity:.85;white-space:nowrap}
 .hud .rep i{height:5px;background:rgba(255,255,255,.15);border-radius:3px;overflow:hidden;display:block}.hud .rep i b{display:block;height:100%;background:linear-gradient(90deg,#e9b949,#ff3d7f)}
 .hud .rec{pointer-events:auto;font-size:18px;cursor:pointer;color:inherit;font-family:inherit}.hud .clock{pointer-events:auto}
-.era97 .hud .rep b{color:var(--lcd-dark)}
 .flash{position:absolute;inset:0;z-index:30;pointer-events:none;animation:flashA .45s ease-out forwards}@keyframes flashA{from{opacity:1}to{opacity:0}}
 .evimg{display:block;width:100%;max-height:34vh;object-fit:cover;border-radius:14px;border:3px solid #120d1c;box-shadow:4px 4px 0 rgba(0,0,0,.4);margin:6px 0 10px;animation:evIn .35s cubic-bezier(.2,1.3,.4,1)}
 @keyframes evIn{from{transform:scale(.85) rotate(-2deg);opacity:0}}
@@ -288,6 +264,24 @@ canvas#cv{position:absolute;inset:0;width:100%;height:100%;touch-action:none}
 #recbtn{position:absolute;right:10px;top:42%;z-index:4;width:46px;height:46px;border-radius:50%;border:3px solid #120d1c;background:#fff8e8;font-size:20px;box-shadow:3px 3px 0 #120d1c;cursor:pointer}#recbtn.on{background:#ff3d7f;color:#fff;font:800 15px Rubik,sans-serif;animation:hsp 1s infinite}.inroom #recbtn{display:none}
 .cardbox video{width:100%;max-height:62vh;border-radius:14px;background:#000}
 .cmt{background:rgba(255,255,255,.06);border-left:4px solid #ff3d7f;border-radius:10px;padding:8px 10px;font-size:13px;font-weight:600;margin:6px 0;animation:evIn .4s .25s both}.era97 .cmt,.ph97 .cmt{border-left-color:var(--lcd-dark);font-family:var(--f-lcd);background:rgba(0,0,0,.06)}
+
+/* ===== font moderni ovunque (LCD solo dentro il Nokia) ===== */
+:root{--f-pop:'Lilita One','Bricolage Grotesque','Arial Black',sans-serif}
+.btn-main,.sheet h2,.sheet h3,.start h1,.ending h2,.sheet.quick h2,.clock,.hud .rep b,.mispill{font-family:var(--f-pop)!important;font-weight:400!important;letter-spacing:.01em}
+.btn-main{font-size:20px}
+.era-card.e97 b{font-family:var(--f-pop);font-size:36px}
+.era97 .hud .box{background:rgba(24,18,40,.78);color:#fff;border:2px solid rgba(0,0,0,.6);border-radius:14px;font-family:var(--f-body)}
+.era97 .hud .box *{font-family:inherit}.era97 .hud .clock{font-family:var(--f-pop)!important}
+.era97 .cash{font-family:var(--f-pop);font-weight:400;font-size:22px}.era97 .cash small{color:#c9f2d0;font-family:var(--f-body);font-size:11px}
+.era97 .sheet{background:var(--panel);color:var(--ink);font-family:var(--f-body);font-size:16px;border-radius:24px 24px 0 0;border:3px solid #120d1c;border-bottom:0}
+.era97 .sheet h3{font-size:26px}
+.era97 .btn-main{background:linear-gradient(135deg,#7dffb0,#ff5d8f);color:#120d1c;border:3px solid #120d1c;border-radius:14px;font:400 20px var(--f-pop)}
+.era97 .btn-ghost{border:2px solid rgba(255,255,255,.25);border-radius:14px;font:500 15px var(--f-body);color:inherit}
+.era97 .choice{font-family:var(--f-body)}
+.era97 .hearts span{color:#ff5d8f;font-family:var(--f-body)}
+.era97 .cmt{font-family:var(--f-body);border-left-color:#7dffb0}
+.toast{font-family:var(--f-body)}
+.ph97 .btn-main,.ph97 .btn-ghost{background:var(--lcd-dark)!important;color:var(--lcd)!important;border:0!important;border-radius:0!important;font:400 21px var(--f-lcd)!important;box-shadow:none!important;transform:none!important}
 </style>
 
 <div id="app"><div class="frame" id="frame">
@@ -1917,7 +1911,7 @@ function drawJuice(t){
   const now=performance.now()/1000,[px,py]=iso(player.u,player.v);
   for(let i=POPS.length-1;i>=0;i--){const p=POPS[i],a=now-p.t0;if(a>1.6){POPS.splice(i,1);continue}
     const y=py-200-a*55,s=a<.15?1+(.15-a)*4:1;ctx.save();ctx.globalAlpha=Math.min(1,(1.6-a)*2);ctx.translate(px+p.dx,y);ctx.scale(s,s);
-    ctx.font='900 24px "Bricolage Grotesque", sans-serif';ctx.textAlign='center';ctx.lineWidth=6;ctx.strokeStyle='#120d1c';ctx.strokeText(p.t,0,0);ctx.fillStyle=p.col;ctx.fillText(p.t,0,0);ctx.restore()}}
+    ctx.font='400 28px "Lilita One", sans-serif';ctx.textAlign='center';ctx.lineWidth=6;ctx.strokeStyle='#120d1c';ctx.strokeText(p.t,0,0);ctx.fillStyle=p.col;ctx.fillText(p.t,0,0);ctx.restore()}}
 
 /* ================= NOTTE CINEMATOGRAFICA ================= */
 const NEON={bar:'255,80,140',disco:'190,90,255',negozio:'80,220,255',officina:'255,170,60',scuola:'255,230,150',lavoro:'120,255,170',casa:'255,210,140',stazione:'255,220,120',sala:'255,60,200',centro:'90,200,255',pizzeria:'255,120,60'};
