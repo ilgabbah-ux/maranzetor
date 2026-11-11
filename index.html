@@ -306,6 +306,26 @@ canvas#cv{position:absolute;inset:0;width:100%;height:100%;touch-action:none}
 .era97 .fx span{font-family:'Press Start 2P',monospace;font-size:11px;line-height:1.5;border:2px solid #120d1c;box-shadow:2px 2px 0 #120d1c;border-radius:4px}
 .era97 .who b,.era26 .who b{font-family:var(--f-pop);font-weight:400;font-size:20px}
 .toast b{font-family:var(--f-pop);font-weight:400}
+/* comandi grandi */
+.controls{top:0}
+.joyz{position:absolute;left:0;bottom:0;width:55%;height:46%;pointer-events:auto;touch-action:none}
+.controls .joyz{position:absolute}
+.joy{position:absolute;left:14px;bottom:calc(14px + env(safe-area-inset-bottom,0px));width:150px;height:150px;background:radial-gradient(circle,rgba(255,255,255,.04),rgba(255,255,255,.13));border:3px solid rgba(255,255,255,.28);box-shadow:0 0 0 2px rgba(0,0,0,.25),inset 0 0 18px rgba(0,0,0,.35);opacity:.6;transition:opacity .15s;pointer-events:none}
+.joy.act{opacity:1;bottom:auto}
+.joy .knob{width:66px;height:66px;margin:-33px 0 0 -33px;background:radial-gradient(circle at 35% 30%,#fff7d6,#e9b949 60%,#b8862a);border:3px solid #120d1c;box-shadow:0 4px 0 rgba(0,0,0,.45)}
+.btns{position:relative;z-index:2;margin-left:auto}
+.rb.a{width:104px;height:104px;border:4px solid #120d1c;box-shadow:0 6px 0 #120d1c;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0;opacity:.7;transition:opacity .15s}
+.rb.a .ai{font:400 34px var(--f-pop,sans-serif);line-height:1}
+.rb.a .al{font:400 15px var(--f-pop,sans-serif);line-height:1.05;max-width:92px;text-align:center;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.rb.a .al:empty{display:none}
+.rb.a.go{opacity:1;background:linear-gradient(#ffe27a,#f2b830);animation:apulse 1.1s ease-in-out infinite}
+.rb.a.pop{animation:apop .25s ease-out,apulse 1.1s .25s ease-in-out infinite}
+@keyframes apulse{0%,100%{box-shadow:0 6px 0 #120d1c,0 0 0 0 rgba(255,214,90,.6)}50%{box-shadow:0 6px 0 #120d1c,0 0 0 12px rgba(255,214,90,0)}}
+@keyframes apop{0%{transform:scale(.8)}70%{transform:scale(1.12)}100%{transform:scale(1)}}
+.rb.s{width:58px;height:58px;font-size:26px;border:3px solid #120d1c;box-shadow:0 4px 0 #120d1c}
+@media (pointer:coarse){.prompt{display:none}}
+@media (orientation:landscape) and (max-height:560px){.joy{width:124px;height:124px}.joy .knob{width:54px;height:54px;margin:-27px 0 0 -27px}.rb.a{width:88px;height:88px}.rb.s{width:50px;height:50px}.joyz{height:70%;width:45%}}
+@media (hover:hover) and (pointer:fine){.joyz{display:none}}
 </style>
 
 <div id="app"><div class="frame" id="frame">
@@ -314,10 +334,10 @@ canvas#cv{position:absolute;inset:0;width:100%;height:100%;touch-action:none}
   <div class="toasts" id="toasts"></div>
   <div class="prompt" id="prompt" hidden></div>
   <div class="controls" id="controls" hidden>
-    <div class="joy" id="joy"><div class="knob" id="knob"></div></div>
+    <div class="joyz" id="joyz"><div class="joy" id="joy"><div class="knob" id="knob"></div></div></div>
     <div class="btns">
       <button class="rb s" id="bPhone" aria-label="Telefono">📱<span class="badge" id="badge" hidden>1</span></button>
-      <button class="rb a" id="bA" aria-label="Azione">A</button>
+      <button class="rb a" id="bA" aria-label="Azione"><span class="ai" id="bAi">A</span><span class="al" id="bAl"></span></button>
       <button class="rb s" id="bRide" aria-label="Sali sul mezzo">🛵</button>
     </div>
   </div>
@@ -1264,7 +1284,7 @@ function tutPages(){
   const touch=matchMedia('(pointer:coarse)').matches;
   return[
     {img:P0+'_w00',t:`Ciao ${S.name}!`,p:`Hai un anno scolastico, da settembre a giugno, per diventare il re della piazza. Ogni giornata è una settimana dell'anno: quello che fai oggi cambia come finisce la storia.`},
-    {img:P0+'_w02',t:"Muoviti nel quartiere",p:touch?"Trascina il joystick in basso a sinistra per camminare. Il quartiere ha scuola, bar, negozio, officina, disco, piazza, parco e campetto.":"Usa le frecce o WASD per camminare. Il quartiere ha scuola, bar, negozio, officina, disco, piazza, parco e campetto."},
+    {img:P0+'_w02',t:"Muoviti nel quartiere",p:touch?"Appoggia il pollice nella metà sinistra dello schermo e trascina: il joystick compare lì. Il quartiere ha scuola, bar, negozio, officina, disco, piazza, parco e campetto.":"Usa le frecce o WASD per camminare. Il quartiere ha scuola, bar, negozio, officina, disco, piazza, parco e campetto."},
     {img:C.compa+'_w00',t:"Parla ed entra con A",p:touch?"Avvicinati a una persona o a una porta e premi il tasto giallo A. Il punto esclamativo giallo sopra la testa vuol dire che qualcuno ha qualcosa da dirti.":"Avvicinati a una persona o a una porta e premi E (o spazio). Il punto esclamativo giallo sopra la testa vuol dire che qualcuno ha qualcosa da dirti."},
     {ic:"🕘",t:"L'orologio corre",p:"Alle 9 si entra a scuola: se non ci vai hai bigiato. Dalle 14 alle 21 puoi lavorare, dalle 21 apre la disco. Torna a casa e vai a dormire prima di mezzanotte, o la famiglia si arrabbia."},
     {ic:"📊",t:"Le tue statistiche",p:"Figosità e Rispetto ti fanno diventare qualcuno. Scuola sotto il 4 a giugno vuol dire bocciato. Se la Famiglia scende a zero ti spediscono dai nonni in campagna. I soldi arrivano con la paghetta e col lavoro."},
@@ -1368,11 +1388,21 @@ function toggleRide(){if(!S||sheet||phoneOpen)return;if(!canRide(S)){toast("Ti s
 $('bA').addEventListener('pointerdown',e=>{e.preventDefault();pressA()});
 $('bPhone').addEventListener('click',togglePhone);
 $('bRide').addEventListener('click',toggleRide);
-{const J=$('joy'),K=$('knob');let id=null,cx=0,cy=0;
-  J.addEventListener('pointerdown',e=>{id=e.pointerId;J.setPointerCapture(id);const r=J.getBoundingClientRect();cx=r.left+r.width/2;cy=r.top+r.height/2;mv(e)});
-  const mv=e=>{if(e.pointerId!==id)return;let dx=e.clientX-cx,dy=e.clientY-cy;const d=Math.hypot(dx,dy),m=40;if(d>m){dx*=m/d;dy*=m/d}K.style.transform=`translate(${dx}px,${dy}px)`;joy.x=Math.abs(dx)<8?0:dx/m;joy.y=Math.abs(dy)<8?0:dy/m};
-  J.addEventListener('pointermove',mv);
-  const up=e=>{if(e.pointerId!==id)return;id=null;joy.x=joy.y=0;K.style.transform=''};J.addEventListener('pointerup',up);J.addEventListener('pointercancel',up)}
+{const Zn=$('joyz'),J=$('joy'),K=$('knob');let id=null,cx=0,cy=0;
+  const R0=()=>{J.style.left='';J.style.top='';J.classList.remove('act')};
+  Zn.addEventListener('pointerdown',e=>{if(id!==null)return;id=e.pointerId;try{Zn.setPointerCapture(id)}catch(_){}const zr=Zn.getBoundingClientRect(),h=J.offsetWidth/2;
+    cx=Math.max(zr.left+h,Math.min(zr.right-h,e.clientX));cy=Math.max(zr.top+h,Math.min(zr.bottom-h,e.clientY));
+    J.style.left=(cx-zr.left-h)+'px';J.style.top=(cy-zr.top-h)+'px';J.classList.add('act');mv(e)});
+  const mv=e=>{if(e.pointerId!==id)return;let dx=e.clientX-cx,dy=e.clientY-cy;const d=Math.hypot(dx,dy),m=J.offsetWidth*.36;if(d>m){dx*=m/d;dy*=m/d}K.style.transform=`translate(${dx}px,${dy}px)`;
+    const dz=m*.15;joy.x=Math.abs(dx)<dz?0:dx/m;joy.y=Math.abs(dy)<dz?0:dy/m};
+  Zn.addEventListener('pointermove',mv);
+  const up=e=>{if(e.pointerId!==id)return;id=null;joy.x=joy.y=0;K.style.transform='';R0()};Zn.addEventListener('pointerup',up);Zn.addEventListener('pointercancel',up)}
+function aSet(ic,lb){const b=$('bA');if(!b)return;const k=ic+'|'+lb;if(b._k===k)return;b._k=k;$('bAi').textContent=ic;$('bAl').textContent=lb;b.classList.toggle('go',!!lb);if(lb){b.classList.remove('pop');void b.offsetWidth;b.classList.add('pop')}}
+function aTick(){if(!S)return;
+  if(sheet&&sheet.kind==='room'){const r=$('rpr'),t=r?r.textContent.replace(/^A\s*/,'').trim():'';aSet(t?'👉':'A',t?t.split(' ').slice(0,2).join(' '):'');return}
+  if(!target){aSet('A','');return}
+  if(target.npc)return aSet('💬','Parla');if(target.wev)return aSet('👀','Guarda');
+  const p=target.poi;if(p.type==='door')return aSet('🚪','Entra');if(p.type==='bench')return aSet('🪑','Siediti');if(p.type==='cabina')return aSet('☎️','Chiama');if(p.type==='campo')return aSet('⚽','Rigori');aSet('A','')}
 
 /* ================= VOICES ================= */
 const VO={prof:['prof1','prof2'],tipa:['tipa1','tipa2'],nonna:['nonna1','nonna2'],bulli:['bulli1','bulli2']};
@@ -1902,7 +1932,7 @@ function alboHtml(){let l=[];try{l=JSON.parse(localStorage.getItem('mz-albo')||'
   return`<details class="albo"><summary>🏆 Albo delle sfide (${l.length})</summary>${l.slice(0,8).map(x=>`<p>${x.ok?'✅':'❌'} <b>${esc(x.n)}</b> · ${esc(x.c)} · ${x.e==='97'?'1997':'2026'} · ${esc(x.d)}</p>`).join('')}</details>`}
 
 /* ================= TUTORIAL INTERATTIVO ================= */
-const TUTI=[["🕹️ Muoviti col joystick a sinistra (o frecce/WASD)",()=>TUTS.mv>1.2],["💬 Avvicinati a una persona e premi A per parlare",()=>Object.keys(S.day.talked).length>0],
+const TUTI=[["🕹️ Pollice a sinistra e trascina per muoverti (o frecce/WASD)",()=>TUTS.mv>1.2],["💬 Avvicinati a una persona: il tasto giallo diventa PARLA",()=>Object.keys(S.day.talked).length>0],
   ["📱 Apri il telefono: tasto in basso a sinistra (o Q)",()=>phoneOpen],["🚪 Avvicinati a una porta e premi A per entrare",()=>sheet&&sheet.kind==='room'],
   [()=>S.era==='97'?"🚲 Sali sulla bici: tasto del mezzo (o R)":"🛴 Sali sul monopattino: tasto del mezzo (o R)",()=>S.riding||!canRide(S)],["🏫 La scuola apre alle 9: entra prima delle 9:30!",()=>S.day.attended||S.min>=570]];
 const TUTS={mv:0,el:null};
@@ -2312,7 +2342,7 @@ function loop(now){
   if(S&&!S.ending&&!sheet&&!phoneOpen&&ground){update(dt);hudT+=dt;if(hudT>.25){hudT=0;renderHUD()}
     const pt=promptText(),pe=$('prompt');if(pt){pe.innerHTML=pt;pe.hidden=false}else pe.hidden=true}
   else $('prompt').hidden=true;
-  draw();requestAnimationFrame(loop);
+  aTick();draw();requestAnimationFrame(loop);
 }
 function drawMinimap(){
   const cvm=$('mini');if(!cvm)return;const c=cvm.getContext('2d');const W=cvm.width,H=cvm.height,k=W/ground.width;
